@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Supprimer l'activité{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Confirmation de suppression</h4>
+            </div>
+            <div class="card-body">
+                <p>Êtes-vous sûr de vouloir supprimer l'activité <strong>"{{ object.name }}"</strong> ?</p>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'projects:admin_project_detail' object.project.pk %}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Annuler
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> Oui, supprimer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block title %}Rapports{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>📊 Tableau de bord des rapports</h2>
+</div>
+
+{% if user.role == 'ADMIN' %}
+    <div class="row">
+        <div class="col-md-3 mb-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Projets</h5>
+                    <h2 class="display-4">{{ total_projects }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Tâches totales</h5>
+                    <h2 class="display-4">{{ total_tasks }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Tâches terminées</h5>
+                    <h2 class="display-4">{{ tasks_done }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Tâches en retard</h5>
+                    <h2 class="display-4">{{ tasks_overdue }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">Top 5 Projets (plus de tâches)</div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        {% for project in top_projects %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <a href="{% url 'reports:project_report' project.pk %}">{{ project.name }}</a>
+                                <span class="badge bg-primary rounded-pill">{{ project.task_count }}</span>
+                            </li>
+                        {% empty %}
+                            <li class="list-group-item text-muted">Aucun projet</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">Top 5 Utilisateurs (plus de tâches)</div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        {% for u in top_users %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <a href="{% url 'reports:user_report' u.pk %}">{{ u.username }}</a>
+                                <span class="badge bg-primary rounded-pill">{{ u.task_count }}</span>
+                            </li>
+                        {% empty %}
+                            <li class="list-group-item text-muted">Aucun utilisateur</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% else %}
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Mes Tâches</h5>
+                    <h2 class="display-4">{{ my_tasks_count }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Terminées</h5>
+                    <h2 class="display-4">{{ my_tasks_done }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <h5 class="card-title">En retard</h5>
+                    <h2 class="display-4">{{ my_tasks_overdue }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if projects %}
+        <div class="row mt-3">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">Mes Projets</div>
+                    <div class="card-body">
+                        <ul class="list-group">
+                            {% for project in projects %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <a href="{% url 'reports:project_report' project.pk %}">{{ project.name }}</a>
+                                    <span class="badge bg-primary rounded-pill">{{ project.progress }}%</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endif %}
+{% endblock %}
+

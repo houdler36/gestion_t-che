@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}Supprimer le projet{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h4>⚠️ Confirmer la suppression</h4>
+            </div>
+            <div class="card-body">
+                <p>Êtes-vous sûr de vouloir supprimer le projet <strong>{{ project.name }}</strong> ?</p>
+                <form method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Oui, supprimer</button>
+                    <a href="{% url 'projects:project_detail' project.pk %}" class="btn btn-secondary">Annuler</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Gestion Projet{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+    <style>
+        /* Styles personnalisés pour la sidebar */
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(180deg, #2c3e50 0%, #1a252f 100%);
+            padding-top: 20px;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            transition: all 0.3s;
+        }
+
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.7);
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin: 2px 10px;
+            transition: all 0.3s;
+        }
+
+        .sidebar .nav-link:hover {
+            color: #fff;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .sidebar .nav-link.active {
+            color: #fff;
+            background: rgba(52, 152, 219, 0.5);
+        }
+
+        .sidebar .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar .nav-section-title {
+            color: rgba(255,255,255,0.4);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 15px 20px 5px 20px;
+            font-weight: 600;
+        }
+
+        .sidebar .user-info {
+            padding: 20px 20px 30px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .sidebar .user-info .avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #3498db;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-size: 24px;
+            color: #fff;
+        }
+
+        .sidebar .user-info .username {
+            color: #fff;
+            font-weight: 600;
+            display: block;
+        }
+
+        .sidebar .user-info .role-badge {
+            font-size: 0.75rem;
+            padding: 3px 12px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+            display: inline-block;
+            margin-top: 5px;
+        }
+
+        .sidebar .nav-link .badge {
+            float: right;
+            margin-top: 3px;
+        }
+
+        .sidebar .app-logo {
+            text-align: center;
+            padding: 15px 0 20px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 15px;
+        }
+
+        .sidebar .app-logo h4 {
+            color: #fff;
+            font-weight: 700;
+        }
+
+        .sidebar .app-logo h4 i {
+            color: #3498db;
+        }
+
+        .sidebar .app-logo small {
+            color: rgba(255,255,255,0.5);
+            font-size: 0.75rem;
+            display: block;
+        }
+
+        .main-content {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            min-height: 100vh;
+        }
+
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 1050;
+            background: #2c3e50;
+            border: none;
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -280px;
+                width: 280px;
+                z-index: 1040;
+                transition: left 0.3s ease;
+                height: 100vh;
+                overflow-y: auto;
+            }
+
+            .sidebar.show {
+                left: 0;
+            }
+
+            .sidebar-toggle {
+                display: block;
+            }
+
+            .main-content {
+                padding: 60px 15px 20px 15px;
+            }
+
+            .overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.5);
+                z-index: 1030;
+            }
+
+            .overlay.show {
+                display: block;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .sidebar {
+                width: 260px;
+                position: sticky;
+            }
+
+            .sidebar.show {
+                left: 0 !important;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.3);
+            border-radius: 10px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255,255,255,0.5);
+        }
+
+        /* Style des cartes */
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+        }
+
+        .card-header {
+            background: transparent;
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+            padding: 16px 20px;
+            font-weight: 600;
+        }
+
+        .table {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+
+        .table thead {
+            background: #f8f9fa;
+        }
+
+        .footer {
+            margin-top: 40px;
+            padding: 20px 0;
+            text-align: center;
+            color: #6c757d;
+            border-top: 1px solid #e9ecef;
+        }
+    </style>
+</head>
+<body>
+    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+        <i class="bi bi-list"></i>
+    </button>
+    <div class="overlay" id="sidebarOverlay"></div>
+
+    <div class="container-fluid p-0">
+        <div class="row g-0">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2" style="flex: 0 0 auto; width: auto;">
+                <div class="sidebar" id="sidebar">
+                    <!-- Logo -->
+                    <div class="app-logo">
+                        <h4><i class="bi bi-kanban"></i> Gestion Projet</h4>
+                        <small>Plateforme de suivi</small>
+                    </div>
+
+                    <!-- Informations utilisateur -->
+                    <div class="user-info">
+                        <div class="avatar">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+                        <span class="username">{{ user.username }}</span>
+                        <span class="role-badge">{{ user.get_role_display }}</span>
+                    </div>
+
+                    <!-- Navigation -->
+                    <nav class="nav flex-column">
+                        <div class="nav-section-title">Navigation</div>
+
+                        <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}"
+                           href="{% url 'home' %}">
+                            <i class="bi bi-house"></i> Accueil
+                        </a>
+
+                        <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"
+                           href="{% url 'dashboard' %}">
+                            <i class="bi bi-speedometer2"></i> Tableau de bord
+                        </a>
+
+                        <a class="nav-link {% if 'tasks' in request.path and 'my-tasks' in request.path %}active{% endif %}"
+                           href="{% url 'tasks:my_tasks' %}">
+                            <i class="bi bi-check2-square"></i> Mes tâches
+                            {% if user.role == 'MEMBER' %}
+                                <span class="badge bg-warning rounded-pill">{{ todo_count|default:0 }}</span>
+                            {% endif %}
+                        </a>
+
+                        {% if user.role == 'ADMIN' or user.role == 'PM' %}
+                            <a class="nav-link {% if 'tasks' in request.path and 'my-tasks' not in request.path %}active{% endif %}"
+                               href="{% url 'tasks:task_list' %}">
+                                <i class="bi bi-list-task"></i> Toutes les tâches
+                            </a>
+                        {% endif %}
+
+                        <div class="nav-section-title">Suivi</div>
+
+                        <a class="nav-link {% if 'tracking' in request.path %}active{% endif %}"
+                           href="{% url 'tracking:log_list' %}">
+                            <i class="bi bi-clock"></i> Journal quotidien
+                        </a>
+
+                        <a class="nav-link {% if 'tracking' in request.path and 'create' in request.path %}active{% endif %}"
+                           href="{% url 'tracking:log_create' %}">
+                            <i class="bi bi-plus-circle"></i> Ajouter un log
+                        </a>
+
+                        <div class="nav-section-title">Rapports</div>
+
+                        <a class="nav-link {% if 'reports' in request.path %}active{% endif %}"
+                           href="{% url 'reports:report_dashboard' %}">
+                            <i class="bi bi-graph-up"></i> Tableau de bord
+                        </a>
+
+                        {% if user.role == 'ADMIN' or user.role == 'PM' %}
+                            <div class="nav-section-title">Administration</div>
+
+                            <a class="nav-link {% if 'projects/admin' in request.path %}active{% endif %}"
+                               href="{% url 'projects:admin_project_list' %}">
+                                <i class="bi bi-gear"></i> Admin Projets
+                            </a>
+
+                            {% if user.role == 'ADMIN' %}
+                                <a class="nav-link mt-1" href="{% url 'admin:index' %}" target="_blank">
+                                    <i class="bi bi-database-gear"></i> Django Admin
+                                </a>
+                            {% endif %}
+                        {% endif %}
+
+                        <div class="nav-section-title">Compte</div>
+
+                        <form action="{% url 'logout' %}" method="post" style="display: inline; width: 100%;">
+                            {% csrf_token %}
+                            <button type="submit" class="nav-link" style="background: none; border: none; color: rgba(255,255,255,0.7); width: 100%; text-align: left; padding: 12px 20px; cursor: pointer;">
+                                <i class="bi bi-box-arrow-right"></i> Déconnexion
+                            </button>
+                        </form>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Contenu principal -->
+            <div class="col">
+                <div class="main-content">
+                    <!-- Messages flash -->
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <!-- ⭐ UN SEUL BLOC CONTENT ⭐ -->
+                    {% block content %}{% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+        function toggleSidebar() {
+            if (!sidebar) return;
+            sidebar.classList.toggle('show');
+            if (sidebarOverlay) sidebarOverlay.classList.toggle('show');
+        }
+
+        if (sidebarToggle) sidebarToggle.addEventListener('click', toggleSidebar);
+
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', function() {
+                if (sidebar) sidebar.classList.remove('show');
+                sidebarOverlay.classList.remove('show');
+            });
+        }
+
+        if (sidebar) {
+            document.querySelectorAll('.sidebar .nav-link').forEach(function(link) {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth <= 768) {
+                        sidebar.classList.remove('show');
+                        if (sidebarOverlay) sidebarOverlay.classList.remove('show');
+                    }
+                });
+            });
+        }
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

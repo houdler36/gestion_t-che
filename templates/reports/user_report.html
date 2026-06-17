@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}Rapport utilisateur — {{ user_report.username }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>👤 Rapport de : {{ user_report.username }}</h2>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <h5 class="card-title">Total</h5>
+                <h2 class="display-4">{{ total_tasks }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h5 class="card-title">Terminées</h5>
+                <h2 class="display-4">{{ tasks_done }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card bg-warning text-dark">
+            <div class="card-body">
+                <h5 class="card-title">À faire</h5>
+                <h2 class="display-4">{{ tasks_todo }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card bg-danger text-white">
+            <div class="card-body">
+                <h5 class="card-title">En retard</h5>
+                <h2 class="display-4">{{ tasks_overdue }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if tasks_by_project %}
+    <div class="card">
+        <div class="card-header">Tâches par projet</div>
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Projet</th>
+                        <th>Nombre de tâches</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for project, count in tasks_by_project.items %}
+                        <tr>
+                            <td>{{ project.name }}</td>
+                            <td>{{ count }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endif %}
+
+<div class="mt-4 text-muted">
+    Logs quotidiens enregistrés : <strong>{{ logs_count }}</strong>
+</div>
+{% endblock %}
+

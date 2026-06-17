@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}Suivi Quotidien{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>🕐 Suivi Quotidien</h2>
+    <a href="{% url 'tracking:log_create' %}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Nouveau Log
+    </a>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>Utilisateur</th>
+                <th>Tâche</th>
+                <th>Date</th>
+                <th>Temps passé</th>
+                <th>Progression</th>
+                <th>Commentaire</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in logs %}
+                <tr>
+                    <td>{{ log.user.username }}</td>
+                    <td>{{ log.task.name }}</td>
+                    <td>{{ log.date }}</td>
+                    <td>
+                        {% if log.time_spent_minutes %}{{ log.time_spent_minutes }} min{% else %}-{% endif %}
+                    </td>
+                    <td>{{ log.progress_delta }}%</td>
+                    <td>{{ log.comment|truncatechars:30 }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted">Aucun log enregistré.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+

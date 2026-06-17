@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Connexion - Gestion Projet</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .login-card {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px 35px;
+            width: 100%;
+            max-width: 420px;
+            animation: slideUp 0.5s ease;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .login-card .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .login-card .logo .icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: #fff;
+            box-shadow: 0 10px 30px rgba(102,126,234,0.3);
+        }
+        .login-card .logo h3 {
+            margin-top: 15px;
+            font-weight: 700;
+            color: #2d3748;
+        }
+        .login-card .logo p {
+            color: #718096;
+            font-size: 14px;
+        }
+        .login-card .form-control {
+            border-radius: 12px;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s;
+            background: #f7fafc;
+        }
+        .login-card .form-control:focus {
+            border-color: #667eea;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.2);
+        }
+        .login-card .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .login-card .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102,126,234,0.4);
+        }
+        .login-card .btn-login i {
+            margin-right: 8px;
+        }
+        .login-card .alert {
+            border-radius: 12px;
+            padding: 12px 15px;
+            font-size: 14px;
+        }
+        .login-card .alert-danger {
+            background: #fff5f5;
+            border: 1px solid #feb2b2;
+            color: #c53030;
+        }
+        .login-card .form-label {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <div class="logo">
+            <div class="icon"><i class="bi bi-kanban"></i></div>
+            <h3>Gestion Projet</h3>
+            <p>Connectez-vous à votre espace</p>
+        </div>
+
+        {% if form.errors %}
+            <div class="alert alert-danger" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                Identifiants incorrects. Veuillez réessayer.
+            </div>
+        {% endif %}
+
+        {% if next %}
+            {% if user.is_authenticated %}
+                <div class="alert alert-danger" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    Vous n'avez pas accès à cette page.
+                </div>
+            {% endif %}
+        {% endif %}
+
+        <form method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                <label for="username" class="form-label">Nom d'utilisateur</label>
+                <input type="text" name="username" id="username" class="form-control" 
+                       placeholder="Entrez votre nom d'utilisateur" required autofocus>
+            </div>
+            
+            <div class="mb-3">
+                <label for="password" class="form-label">Mot de passe</label>
+                <input type="password" name="password" id="password" class="form-control" 
+                       placeholder="Entrez votre mot de passe" required>
+            </div>
+            
+            <button type="submit" class="btn-login">
+                <i class="bi bi-box-arrow-in-right"></i> Se connecter
+            </button>
+            
+            <input type="hidden" name="next" value="{{ next }}">
+        </form>
+    </div>
+</body>
+</html>

@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}Détail du projet{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>{{ project.name }}</h2>
+    <div>
+        <a href="{% url 'projects:project_update' project.pk %}" class="btn btn-warning">
+            <i class="bi bi-pencil"></i> Modifier
+        </a>
+        <a href="{% url 'projects:project_delete' project.pk %}" class="btn btn-danger">
+            <i class="bi bi-trash"></i> Supprimer
+        </a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <p><strong>Description :</strong> {{ project.description }}</p>
+                <div class="row">
+                    <div class="col-md-4">
+                        <strong>Statut :</strong>
+                        <span class="badge bg-secondary">{{ project.get_status_display }}</span>
+                    </div>
+                    <div class="col-md-4">
+                        <strong>Début :</strong> {{ project.start_date }}
+                    </div>
+                    <div class="col-md-4">
+                        <strong>Fin :</strong> {{ project.end_date }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <h5>Progression globale</h5>
+                <h2 class="display-4">{{ progress }}%</h2>
+                <div class="progress" style="height: 20px;">
+                    <div class="progress-bar bg-success" style="width: {{ progress }}%;">
+                        {{ progress }}%
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h4>Activités du projet</h4>
+<div class="row">
+    {% for activity in activities %}
+        <div class="col-md-6 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5>{{ activity.name }}</h5>
+                    <p><strong>Responsable :</strong> {{ activity.responsible.username }}</p>
+                    <div class="progress mb-2" style="height: 10px;">
+                        <div class="progress-bar" style="width: {{ activity.progress }}%;">
+                            {{ activity.progress }}%
+                        </div>
+                    </div>
+                    <small class="text-muted">{{ activity.start_date }} → {{ activity.end_date }}</small>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">Aucune activité pour ce projet.</div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}
+

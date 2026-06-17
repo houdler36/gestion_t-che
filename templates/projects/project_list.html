@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Projets{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>📁 Mes Projets</h2>
+    {% if user.role == 'ADMIN' or user.role == 'PM' %}
+        <a href="{% url 'projects:project_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Nouveau Projet
+        </a>
+    {% endif %}
+</div>
+
+<div class="row">
+    {% for project in projects %}
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ project.name }}</h5>
+                    <p class="card-text text-muted">{{ project.description|truncatewords:20 }}</p>
+                    <div class="mb-2">
+                        <span class="badge bg-secondary">{{ project.get_status_display }}</span>
+                    </div>
+<div class="progress mb-2" style="height: 10px;">
+                        <div class="progress-bar" role="progressbar" style="width: {{ project.get_progress }}%;">
+                            {{ project.get_progress }}%
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between text-muted small">
+                        <span>Début : {{ project.start_date }}</span>
+                        <span>Membres : {{ project.members.count }}</span>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <a href="{% url 'projects:project_detail' project.pk %}" class="btn btn-outline-primary btn-sm w-100">
+                        Voir le projet
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info text-center">
+                <i class="bi bi-info-circle"></i> Vous n'avez pas encore de projets.
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
