@@ -1,47 +1,165 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}{% if form.instance.pk %}Modifier{% else %}Créer{% endif %} un projet{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/forms.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header">
-                <h4 class="mb-0">
-                    <i class="bi bi-folder-{% if form.instance.pk %}open{% else %}plus{% endif %}"></i>
-                    {% if form.instance.pk %}Modifier{% else %}Créer{% endif %} un projet
-                </h4>
-            </div>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
 
-            <div class="card-body">
-                <form method="post">
-                    {% csrf_token %}
+            <div class="form-card">
+                <div class="form-header">
+                    <h4>
+                        <i class="bi bi-folder-{% if form.instance.pk %}open{% else %}plus{% endif %}"></i>
+                        {% if form.instance.pk %}Modifier{% else %}Créer{% endif %} un projet
+                    </h4>
+                    <p>{% if form.instance.pk %}Modifiez les informations du projet{% else %}Ajoutez un nouveau projet{% endif %}</p>
+                </div>
 
-                    {% for field in form %}
-                        <div class="mb-3">
-                            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-                            {{ field }}
-                            {% if field.help_text %}
-                                <small class="form-text text-muted">{{ field.help_text }}</small>
-                            {% endif %}
-                            {% if field.errors %}
-                                <div class="alert alert-danger mt-1">{{ field.errors }}</div>
+                <div class="form-body">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                {% for error in form.non_field_errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <div class="form-group">
+                            <label for="{{ form.name.id_for_label }}">
+                                Nom <span class="required">*</span>
+                            </label>
+                            <div class="input-icon-group">
+                                <span class="input-icon"><i class="bi bi-tag"></i></span>
+                                {{ form.name }}
+                            </div>
+                            {% if form.name.errors %}
+                                <div class="form-errors">
+                                    <i class="bi bi-exclamation-circle"></i>
+                                    {% for error in form.name.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
                             {% endif %}
                         </div>
-                    {% endfor %}
 
-                    <div class="d-flex justify-content-between mt-3">
-                        <a href="{% url 'projects:admin_project_list' %}" class="btn btn-secondary">
-                            <i class="bi bi-arrow-left"></i> Annuler
-                        </a>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-save"></i> Enregistrer
-                        </button>
-                    </div>
-                </form>
+                        <div class="form-group">
+                            <label for="{{ form.description.id_for_label }}">
+                                Description
+                            </label>
+                            <div class="input-icon-group">
+                                <span class="input-icon"><i class="bi bi-file-text"></i></span>
+                                {{ form.description }}
+                            </div>
+                            {% if form.description.errors %}
+                                <div class="form-errors">
+                                    <i class="bi bi-exclamation-circle"></i>
+                                    {% for error in form.description.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.start_date.id_for_label }}">
+                                Date de début
+                            </label>
+                            <div class="input-icon-group">
+                                <span class="input-icon"><i class="bi bi-calendar3"></i></span>
+                                {{ form.start_date }}
+                            </div>
+                            {% if form.start_date.errors %}
+                                <div class="form-errors">
+                                    <i class="bi bi-exclamation-circle"></i>
+                                    {% for error in form.start_date.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.end_date.id_for_label }}">
+                                Date de fin
+                            </label>
+                            <div class="input-icon-group">
+                                <span class="input-icon"><i class="bi bi-calendar3"></i></span>
+                                {{ form.end_date }}
+                            </div>
+                            {% if form.end_date.errors %}
+                                <div class="form-errors">
+                                    <i class="bi bi-exclamation-circle"></i>
+                                    {% for error in form.end_date.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.status.id_for_label }}">
+                                Statut
+                            </label>
+                            <div class="input-icon-group">
+                                <span class="input-icon"><i class="bi bi-flag"></i></span>
+                                {{ form.status }}
+                            </div>
+                            {% if form.status.errors %}
+                                <div class="form-errors">
+                                    <i class="bi bi-exclamation-circle"></i>
+                                    {% for error in form.status.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.members.id_for_label }}">
+                                Membres
+                            </label>
+                            <div class="input-icon-group">
+                                <span class="input-icon"><i class="bi bi-people"></i></span>
+                                {{ form.members }}
+                            </div>
+                            {% if form.members.help_text %}
+                                <div class="form-text mt-2">{{ form.members.help_text }}</div>
+                            {% endif %}
+                            {% if form.members.errors %}
+                                <div class="form-errors">
+                                    <i class="bi bi-exclamation-circle"></i>
+                                    {% for error in form.members.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-actions">
+                            <a href="{% url 'projects:admin_project_list' %}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary flex-grow-1">
+                                <i class="bi bi-save"></i> Enregistrer
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
+
         </div>
     </div>
 </div>
 {% endblock %}
+
 

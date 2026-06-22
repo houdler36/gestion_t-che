@@ -3,45 +3,86 @@
 {% block title %}Suivi Quotidien{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>🕐 Suivi Quotidien</h2>
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-4">
+    <div>
+        <h2 class="mb-0">🕐 Suivi Quotidien</h2>
+        <div class="text-muted">Journal quotidien des tâches</div>
+    </div>
+
     <a href="{% url 'tracking:log_create' %}" class="btn btn-primary">
         <i class="bi bi-plus-circle"></i> Nouveau Log
     </a>
 </div>
 
-<div class="table-responsive">
-    <table class="table table-striped table-hover">
-        <thead>
-            <tr>
-                <th>Utilisateur</th>
-                <th>Tâche</th>
-                <th>Date</th>
-                <th>Temps passé</th>
-                <th>Progression</th>
-                <th>Commentaire</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for log in logs %}
-                <tr>
-                    <td>{{ log.user.username }}</td>
-                    <td>{{ log.task.name }}</td>
-                    <td>{{ log.date }}</td>
-                    <td>
-                        {% if log.time_spent_minutes %}{{ log.time_spent_minutes }} min{% else %}-{% endif %}
-                    </td>
-                    <td>{{ log.progress_delta }}%</td>
-                    <td>{{ log.comment|truncatechars:30 }}</td>
-                </tr>
-            {% empty %}
-                <tr>
-                    <td colspan="6" class="text-center text-muted">Aucun log enregistré.</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="card shadow-sm">
+    <div class="card-header bg-white">
+        <div class="d-flex align-items-center justify-content-between gap-3">
+            <h5 class="mb-0">Logs</h5>
+            <span class="text-muted small">{{ logs|length }} élément(s)</span>
+        </div>
+    </div>
+
+    <div class="card-body p-0">
+        {% if logs %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Utilisateur</th>
+                            <th>Tâche</th>
+                            <th>Date</th>
+                            <th class="text-nowrap">Temps passé</th>
+                            <th class="text-nowrap">Progression</th>
+                            <th>Commentaire</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in logs %}
+                            <tr>
+                                <td class="text-nowrap">{{ log.user.username }}</td>
+                                <td>{{ log.task.name }}</td>
+                                <td class="text-nowrap">{{ log.date }}</td>
+                                <td class="text-nowrap">
+                                    {% if log.time_spent_minutes %}
+                                        {{ log.time_spent_minutes }} min
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+                                <td class="text-nowrap">
+                                    {% with p=log.progress_delta|default:0 %}
+                                        {% if p|floatformat:0|add:0 < 50 %}
+                                            <span class="badge bg-danger">{{ log.progress_delta }}%</span>
+                                        {% elif p|floatformat:0|add:0 < 100 %}
+                                            <span class="badge bg-warning text-dark">{{ log.progress_delta }}%</span>
+                                        {% else %}
+                                            <span class="badge bg-success">{{ log.progress_delta }}%</span>
+                                        {% endif %}
+                                    {% endwith %}
+                                </td>
+                                <td>
+                                    {% if log.comment %}
+                                        {{ log.comment|truncatechars:60 }}
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="p-5 text-center">
+                <div class="display-6">📭</div>
+                <div class="mt-2 fw-semibold">Aucun log enregistré.</div>
+                <div class="text-muted mt-1">Créez un premier log pour démarrer votre suivi.</div>
+                <a href="{% url 'tracking:log_create' %}" class="btn btn-primary mt-3">
+                    <i class="bi bi-plus-circle"></i> Nouveau Log
+                </a>
+            </div>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}
-
 

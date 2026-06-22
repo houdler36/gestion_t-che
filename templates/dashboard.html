@@ -3,130 +3,287 @@
 {% block title %}Tableau de bord{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>📊 Tableau de bord</h2>
-    <span class="text-muted">Bienvenue {{ user.username }} !</span>
+<style>
+  .dashboard-hero{
+    border: 1px solid rgba(226,232,240,0.9);
+    background: linear-gradient(135deg, rgba(37,99,235,0.08), rgba(79,70,229,0.06));
+    border-radius: 18px;
+    padding: 18px 18px;
+    box-shadow: 0 10px 30px rgba(15,23,42,0.04);
+  }
+
+  .stat-card{
+    height: 100%;
+    border-radius: 16px;
+    border: 1px solid rgba(226,232,240,0.9);
+    background: #fff;
+    overflow: hidden;
+    position: relative;
+    transition: transform .2s ease, box-shadow .2s ease;
+  }
+  .stat-card:hover{
+    transform: translateY(-2px);
+    box-shadow: 0 16px 40px rgba(15,23,42,0.10);
+  }
+  .stat-card .stat-inner{padding: 16px 16px;}
+  .stat-card .stat-icon{
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size: 20px;
+    background: rgba(0,0,0,0.03);
+    border: 1px solid rgba(0,0,0,0.04);
+  }
+  .stat-card .stat-value{font-weight: 900; font-size: 2rem; line-height: 1.1;}
+  .stat-card .stat-label{color: var(--text); font-weight: 800; opacity: .9;}
+  .stat-card .stat-delta{font-weight: 800; font-size: .95rem;}
+
+  .progress-wrap{border-radius: 16px; border: 1px solid rgba(226,232,240,0.9); background: #fff;}
+  .fade-in{
+    opacity: 0;
+    transform: translateY(8px);
+    animation: dashIn .45s ease forwards;
+  }
+  @keyframes dashIn{to{opacity:1; transform: translateY(0);} }
+
+  .status-pill{
+    font-weight: 800;
+    padding: 6px 12px;
+    border-radius: 999px;
+    display:inline-flex;
+    align-items:center;
+    gap: 8px;
+    border: 1px solid rgba(0,0,0,0.06);
+  }
+  .dot{width:10px; height:10px; border-radius:50%; display:inline-block;}
+
+  .h-scroll{
+    overflow-x:auto;
+  }
+  .h-scroll::-webkit-scrollbar{height:8px;}
+</style>
+
+<div class="dashboard-hero mb-4 fade-in">
+  <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2">
+    <div>
+      <div class="d-flex align-items-center gap-2 mb-1">
+        <h2 class="m-0">Bonjour Houlder 👋</h2>
+      </div>
+      <div class="text-muted fw-semibold">Aujourd'hui : {{ today }}</div>
+    </div>
+    <div class="text-muted fw-semibold">Continuez votre travail.</div>
+  </div>
 </div>
 
-{% if user.role == 'ADMIN' %}
-<div class="row">
-    <div class="col-md-3 mb-3">
-        <div class="card bg-primary text-white">
-            <div class="card-body">
-                <h5 class="card-title">Projets</h5>
-                <h2 class="display-4">{{ total_projects }}</h2>
-                <p class="card-text">Projets en cours : {{ projects_ongoing }}</p>
-            </div>
+<div class="row g-3 mb-3">
+  <!-- Tâches -->
+  <div class="col-12 col-sm-6 col-lg-3 fade-in" style="animation-delay: 0ms">
+    <div class="stat-card">
+      <div class="stat-inner">
+        <div class="d-flex align-items-center justify-content-between">
+          <div class="stat-icon" style="background: rgba(37,99,235,0.08); border-color: rgba(37,99,235,0.20); color: var(--primary);">📋</div>
+          <div class="stat-delta" style="color: {{ tasks_delta_color }}">{{ tasks_delta_text }}</div>
         </div>
+        <div class="mt-3 stat-value">{{ tasks_total }}</div>
+        <div class="stat-label">Tâches</div>
+        <div class="text-muted fw-semibold mt-1">Trier et avancer</div>
+      </div>
     </div>
-    <div class="col-md-3 mb-3">
-        <div class="card bg-success text-white">
-            <div class="card-body">
-                <h5 class="card-title">Tâches</h5>
-                <h2 class="display-4">{{ total_tasks }}</h2>
-                <p class="card-text">Terminées : {{ tasks_done }}</p>
-            </div>
+  </div>
+
+  <!-- Terminées -->
+  <div class="col-12 col-sm-6 col-lg-3 fade-in" style="animation-delay: 60ms">
+    <div class="stat-card">
+      <div class="stat-inner">
+        <div class="d-flex align-items-center justify-content-between">
+          <div class="stat-icon" style="background: rgba(34,197,94,0.10); border-color: rgba(34,197,94,0.22); color: var(--success);">✅</div>
+          <div class="stat-delta" style="color: {{ done_delta_color }}">{{ done_delta_text }}</div>
         </div>
+        <div class="mt-3 stat-value">{{ tasks_done }}</div>
+        <div class="stat-label">Terminées</div>
+        <div class="text-muted fw-semibold mt-1">Bravo !</div>
+      </div>
     </div>
-    <div class="col-md-3 mb-3">
-        <div class="card bg-warning text-white">
-            <div class="card-body">
-                <h5 class="card-title">Tâches en retard</h5>
-                <h2 class="display-4">{{ tasks_overdue }}</h2>
-                <p class="card-text">À traiter d'urgence</p>
-            </div>
+  </div>
+
+  <!-- Logs -->
+  <div class="col-12 col-sm-6 col-lg-3 fade-in" style="animation-delay: 120ms">
+    <div class="stat-card">
+      <div class="stat-inner">
+        <div class="d-flex align-items-center justify-content-between">
+          <div class="stat-icon" style="background: rgba(245,158,11,0.10); border-color: rgba(245,158,11,0.22); color: var(--warning);">📝</div>
+          <div class="stat-delta" style="color: {{ logs_delta_color }}">{{ logs_delta_text }}</div>
         </div>
+        <div class="mt-3 stat-value">{{ recent_logs_count }}</div>
+        <div class="stat-label">Logs</div>
+        <div class="text-muted fw-semibold mt-1">Suivi quotidien</div>
+      </div>
     </div>
+  </div>
+
+  <!-- Temps -->
+  <div class="col-12 col-sm-6 col-lg-3 fade-in" style="animation-delay: 180ms">
+    <div class="stat-card">
+      <div class="stat-inner">
+        <div class="d-flex align-items-center justify-content-between">
+          <div class="stat-icon" style="background: rgba(239,68,68,0.10); border-color: rgba(239,68,68,0.22); color: var(--danger);">⏱</div>
+          <div class="stat-delta" style="color: {{ time_delta_color }}">{{ time_delta_text }}</div>
+        </div>
+        <div class="mt-3 stat-value">{{ time_spent_hours }}</div>
+        <div class="stat-label">Temps</div>
+        <div class="text-muted fw-semibold mt-1">Total (heures)</div>
+      </div>
+    </div>
+  </div>
 </div>
 
-{% elif user.role == 'PM' %}
-<div class="row">
-    <div class="col-md-4 mb-3">
-        <div class="card bg-info text-white">
-            <div class="card-body">
-                <h5 class="card-title">Mes Projets</h5>
-                <h2 class="display-4">{{ my_projects_count }}</h2>
+<div class="row g-3 mb-4">
+  <!-- Activités récentes + Progression -->
+  <div class="col-12 col-lg-7 fade-in" style="animation-delay: 240ms">
+    <div class="progress-wrap p-3 h-100">
+      <div class="d-flex align-items-center justify-content-between mb-2">
+        <h5 class="m-0 fw-extrabold">Activités récentes</h5>
+        <span class="text-muted small">Derniers changements</span>
+      </div>
+
+      {% if recent_logs %}
+        {% regroup recent_logs by day as grouped_logs %}
+      {% endif %}
+
+      <div class="mt-2">
+        {% for log in recent_logs %}
+          <div class="d-flex align-items-start gap-2 py-2 border-bottom" style="border-color: rgba(226,232,240,0.9);">
+
+            <div class="mt-1">
+              {% if log.kind == 'create' %}
+                <span class="status-pill" style="background: rgba(34,197,94,0.10); color: var(--success); border-color: rgba(34,197,94,0.20);">
+                  🟢
+                </span>
+              {% elif log.kind == 'update' %}
+                <span class="status-pill" style="background: rgba(37,99,235,0.10); color: var(--primary); border-color: rgba(37,99,235,0.20);">
+                  🔵
+                </span>
+              {% else %}
+                <span class="status-pill" style="background: rgba(139,92,246,0.10); color: #7c3aed; border-color: rgba(124,58,237,0.20);">
+                  🟣
+                </span>
+              {% endif %}
             </div>
-        </div>
-    </div>
-    <div class="col-md-4 mb-3">
-        <div class="card bg-success text-white">
-            <div class="card-body">
-                <h5 class="card-title">Tâches totales</h5>
-                <h2 class="display-4">{{ my_tasks_count }}</h2>
-                <p class="card-text">Terminées : {{ my_tasks_done }}</p>
+
+            <div class="flex-grow-1">
+              <div class="fw-bold">{{ log.title }}</div>
+              <div class="text-muted small">{{ log.when }}</div>
             </div>
-        </div>
+          </div>
+        {% empty %}
+          <div class="text-muted py-3">Aucune activité récente.</div>
+        {% endfor %}
+      </div>
     </div>
+  </div>
+
+  <div class="col-12 col-lg-5 fade-in" style="animation-delay: 300ms">
+    <div class="progress-wrap p-3 h-100">
+      <div class="d-flex align-items-center justify-content-between mb-2">
+        <h5 class="m-0 fw-extrabold">Progression</h5>
+        <span class="text-muted small">Global</span>
+      </div>
+
+      <div class="d-flex align-items-center justify-content-between">
+        <div class="fw-extrabold" style="font-size: 1.1rem;">{{ progression_percent }}%</div>
+        <div class="status-pill" id="progressBadge" style="background: rgba(0,0,0,0.03);">
+          <span class="dot" style="background: {{ progression_color }}"></span>
+          <span style="color: {{ progression_color }};">{{ progression_label }}</span>
+        </div>
+      </div>
+
+      <div class="mt-3">
+      <div class="progress" style="height: 12px; border-radius: 999px; background: rgba(148,163,184,0.25); overflow:hidden;">
+          <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%; background: {{ progression_color }}; transition: width 900ms ease-in-out;"></div>
+        </div>
+        <div class="text-muted small mt-2">
+          ████████░░░░░░░ {{ progression_percent }} %
+        </div>
+      </div>
+
+      <div class="mt-3 small text-muted">
+        Basé sur l'avancement des tâches terminées et en cours.
+      </div>
+    </div>
+  </div>
 </div>
 
-<div class="row mt-3">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header">
-                <h5>Mes Projets</h5>
-            </div>
-            <div class="card-body">
-                <div class="list-group">
-                    {% for project in my_projects %}
-                        <a href="{% url 'projects:project_detail' project.pk %}" class="list-group-item list-group-item-action">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <strong>{{ project.name }}</strong>
-                                    <span class="badge bg-secondary ms-2">{{ project.get_status_display }}</span>
-                                </div>
-                                {% if project.get_progress %}
-                                    <span>{{ project.get_progress }}%</span>
-                                {% else %}
-                                    <span>0%</span>
-                                {% endif %}
-                            </div>
-                        </a>
-                    {% empty %}
-                        <p class="text-muted mb-0">Aucun projet assigné.</p>
-                    {% endfor %}
+<!-- Tâches en cours -->
+<div class="card fade-in" style="animation-delay: 360ms">
+  <div class="card-header d-flex align-items-center justify-content-between">
+    <h5 class="m-0 fw-extrabold">Tâches en cours</h5>
+    <a href="{% url 'tasks:my_tasks' %}" class="text-decoration-none fw-bold" style="color: var(--primary);">Voir toutes</a>
+  </div>
+  <div class="card-body">
+    <div class="h-scroll">
+      <table class="table align-middle" style="min-width: 720px;">
+        <thead>
+          <tr>
+            <th>Tâche</th>
+            <th>Priorité</th>
+            <th>Statut</th>
+            <th style="width: 42%">Progression</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in tasks_in_progress %}
+            <tr>
+              <td class="fw-bold">{{ t.name }}</td>
+              <td>
+                {% if t.priority == 'HIGH' %}
+                  <span class="status-pill" style="background: rgba(239,68,68,0.12); color: var(--danger); border-color: rgba(239,68,68,0.20);">🔴 Haute</span>
+                {% elif t.priority == 'LOW' %}
+                  <span class="status-pill" style="background: rgba(34,197,94,0.10); color: var(--success); border-color: rgba(34,197,94,0.20);">🟢 Basse</span>
+                {% else %}
+                  <span class="status-pill" style="background: rgba(245,158,11,0.12); color: var(--warning); border-color: rgba(245,158,11,0.22);">🟠 Moyenne</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if t.status == 'DONE' %}
+                  <span class="status-pill" style="background: rgba(34,197,94,0.10); color: var(--success); border-color: rgba(34,197,94,0.20);">✅ Terminé</span>
+                {% elif t.status == 'INPROGRESS' %}
+                  <span class="status-pill" style="background: rgba(37,99,235,0.10); color: var(--primary); border-color: rgba(37,99,235,0.20);">🔵 En cours</span>
+                {% elif t.status == 'BLOCKED' %}
+                  <span class="status-pill" style="background: rgba(100,116,139,0.12); color: var(--border); border-color: rgba(100,116,139,0.22);">⛔ Bloquée</span>
+                {% else %}
+                  <span class="status-pill" style="background: rgba(245,158,11,0.12); color: var(--warning); border-color: rgba(245,158,11,0.22);">🟠 À faire</span>
+                {% endif %}
+              </td>
+              <td>
+                <div class="progress" style="height: 12px; border-radius: 999px; background: rgba(148,163,184,0.25); overflow:hidden;">
+                  <div class="progress-bar" role="progressbar" style="width: {{ t.progress }}%; background: {{ t.progress_color }}; transition: width 900ms ease-in-out;"></div>
                 </div>
-            </div>
-        </div>
+                <div class="text-muted small mt-1">{{ t.progress }}%</div>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="4" class="text-muted">Aucune tâche en cours.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
+  </div>
 </div>
 
-{% else %}
-<div class="row">
-    <div class="col-md-3 mb-3">
-        <div class="card bg-secondary text-white">
-            <div class="card-body">
-                <h5 class="card-title">À faire</h5>
-                <h2 class="display-4">{{ todo_count }}</h2>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3 mb-3">
-        <div class="card bg-warning text-white">
-            <div class="card-body">
-                <h5 class="card-title">En cours</h5>
-                <h2 class="display-4">{{ inprogress_count }}</h2>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3 mb-3">
-        <div class="card bg-success text-white">
-            <div class="card-body">
-                <h5 class="card-title">Terminées</h5>
-                <h2 class="display-4">{{ done_count }}</h2>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3 mb-3">
-        <div class="card bg-danger text-white">
-            <div class="card-body">
-                <h5 class="card-title">En retard</h5>
-                <h2 class="display-4">{{ overdue_count }}</h2>
-            </div>
-        </div>
-    </div>
-</div>
-{% endif %}
+<script>
+  (function(){
+    const bar = document.getElementById('progressBar');
+    if(!bar) return;
+    const target = parseFloat({{ progression_percent|default:0 }}) || 0;
+    requestAnimationFrame(()=>{ bar.style.width = target + '%'; });
+  })();
+</script>
 
 {% endblock %}
+
 

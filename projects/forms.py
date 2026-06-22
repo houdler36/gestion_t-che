@@ -39,13 +39,18 @@ class ProjectForm(forms.ModelForm):
 class ActivityForm(forms.ModelForm):
     class Meta:
         model = Activity
-        fields = ['name', 'responsible', 'start_date', 'end_date']
+        fields = ['code', 'name', 'description', 'responsible', 'start_date', 'end_date']
         widgets = {
+            'code': forms.TextInput(attrs={'class': 'form-control', 'placeholder': "Code de l'activité"}),
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': "Nom de l'activité"}),
+            'description': forms.Textarea(
+                attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Description...'}
+            ),
             'responsible': forms.Select(attrs={'class': 'form-select'}),
             'start_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'end_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
         }
+
 
     def __init__(self, project, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -56,12 +61,17 @@ class ActivityForm(forms.ModelForm):
 class SubActivityForm(forms.ModelForm):
     class Meta:
         model = SubActivity
-        fields = ['name', 'assigned_to', 'status']
+        fields = ['code', 'name', 'description', 'assigned_to', 'status']
         widgets = {
+            'code': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Code de la sous-activité'}),
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': "Nom de la sous-activité"}),
+            'description': forms.Textarea(
+                attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Description...'}
+            ),
             'assigned_to': forms.Select(attrs={'class': 'form-select'}),
             'status': forms.Select(attrs={'class': 'form-select'}),
         }
+
 
     def __init__(self, activity, *args, **kwargs):
         super().__init__(*args, **kwargs)

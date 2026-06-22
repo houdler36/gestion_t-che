@@ -1,0 +1,35 @@
+{% comment %}
+Reusable Bootstrap 5 field renderer (floating labels style).
+Expect variable: `field`.
+Usage:
+  {% for field in form %}{% include 'partials/form_field.html' %}{% endfor %}
+{% endcomment %}
+
+{% with f=field %}
+  <div class="col-12 mb-3">
+    <div class="form-floating">
+      {{ f }}
+      {% if f.label %}
+        <label for="{{ f.id_for_label }}">
+          {{ f.label }}
+          {% if f.field.required %}<span class="text-danger">*</span>{% endif %}
+        </label>
+      {% endif %}
+    </div>
+
+    {% if f.help_text %}
+      <div class="text-muted mt-1" style="font-size: .875rem;">{{ f.help_text }}</div>
+    {% endif %}
+
+    {% if f.errors %}
+      <div class="alert alert-danger py-1 px-2 mt-2 mb-0" style="border-radius: 12px;">
+        <div class="small">{{ f.errors }}</div>
+      </div>
+    {% endif %}
+  </div>
+{% endwith %}
+
+
+
+
+

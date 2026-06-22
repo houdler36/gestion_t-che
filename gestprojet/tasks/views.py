@@ -68,14 +68,24 @@ class TaskCreateView(LoginRequiredMixin, CreateView):
 
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
+
+        # ====== Classes Bootstrap pour icônes (input-icon-group) ======
+        # On force les classes, car ce formulaire n'utilise pas un forms.py.
+        form.fields['sub_activity'].widget.attrs.update({'class': 'form-select'})
+        form.fields['project'].widget.attrs.update({'class': 'form-select'})
+        form.fields['name'].widget.attrs.update({'class': 'form-control'})
+        form.fields['description'].widget.attrs.update({'class': 'form-control'})
+        form.fields['assigned_to'].widget.attrs.update({'class': 'form-select'})
+        form.fields['priority'].widget.attrs.update({'class': 'form-select'})
+        form.fields['due_date'].widget.attrs.update({'class': 'form-control', 'type': 'date'})
+        form.fields['status'].widget.attrs.update({'class': 'form-select'})
+
         if getattr(self.request.user, 'role', None) == 'PM':
             user_projects = self.request.user.projects.all()
             form.fields['sub_activity'].queryset = SubActivity.objects.filter(
                 activity__project__in=user_projects
             )
             # Sécurise l'option "vide" pour permettre les tâches hors projet.
-            # (Le champ est null=True/blank=True côté modèle, mais on force ici
-            # la présence d'une option vide.)
             try:
                 form.fields['sub_activity'].empty_label = "---------"
             except Exception:
@@ -88,6 +98,7 @@ class TaskCreateView(LoginRequiredMixin, CreateView):
             pass
 
         return form
+
 
 
 

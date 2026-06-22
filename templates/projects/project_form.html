@@ -1,26 +1,90 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Projet{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/forms.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header">
-                <h4>{% if form.instance.pk %}Modifier{% else %}Créer{% endif %} un projet</h4>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <div class="form-card">
+                <div class="form-header">
+                    <h4>
+                        <i class="bi bi-folder"></i>
+                        {% if form.instance.pk %}Modifier{% else %}Créer{% endif %} un projet
+                    </h4>
+                    <p>{% if form.instance.pk %}Modifiez les informations du projet{% else %}Ajoutez un nouveau projet{% endif %}</p>
+                </div>
+
+                <div class="form-body">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                {% for error in form.non_field_errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <div class="form-group">
+                            <label for="{{ form.name.id_for_label }}">
+                                Nom <span class="required">*</span>
+                            </label>
+                            <div class="input-icon-group">
+                                <span class="input-icon"><i class="bi bi-tag"></i></span>
+                                {{ form.name }}
+                            </div>
+                            {% if form.name.errors %}
+                                <div class="form-errors">
+                                    <i class="bi bi-exclamation-circle"></i>
+                                    {% for error in form.name.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.description.id_for_label }}">
+                                Description
+                            </label>
+                            <div class="input-icon-group">
+                                <span class="input-icon"><i class="bi bi-file-text"></i></span>
+                                {{ form.description }}
+                            </div>
+                            {% if form.description.errors %}
+                                <div class="form-errors">
+                                    <i class="bi bi-exclamation-circle"></i>
+                                    {% for error in form.description.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary flex-grow-1">
+                                <i class="bi bi-save"></i> Enregistrer
+                            </button>
+                            <a href="{% url 'projects:project_list' %}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Annuler
+                            </a>
+                        </div>
+                    </form>
+                </div>
             </div>
-            <div class="card-body">
-                <form method="post">
-                    {% csrf_token %}
-                    {{ form.as_p }}
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-save"></i> Enregistrer
-                    </button>
-                    <a href="{% url 'projects:project_list' %}" class="btn btn-secondary">Annuler</a>
-                </form>
-            </div>
+
         </div>
     </div>
 </div>
 {% endblock %}
+
 

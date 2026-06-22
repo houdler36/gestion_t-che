@@ -7,243 +7,295 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
-        /* Styles personnalisés pour la sidebar */
-        .sidebar {
+
+        :root{
+            --primary:#2563eb;
+            --secondary:#4f46e5;
+            --success:#22c55e;
+            --warning:#f59e0b;
+            --danger:#ef4444;
+            --background:#f8fafc;
+            --card:#ffffff;
+            --border:#e2e8f0;
+            --text:#1e293b;
+        }
+
+        html,body{height:100%;}
+
+        body{
+            font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+            color: var(--text);
+            background: var(--background);
+        }
+
+        /* ============ Layout ============ */
+        .main-content{
+            padding: 84px 30px 30px 30px;
+            background: var(--background);
             min-height: 100vh;
-            background: linear-gradient(180deg, #2c3e50 0%, #1a252f 100%);
-            padding-top: 20px;
-            position: sticky;
-            top: 0;
-            height: 100vh;
-            overflow-y: auto;
-            transition: all 0.3s;
+            animation: fadeInUp .35s ease both;
         }
 
-        .sidebar .nav-link {
-            color: rgba(255,255,255,0.7);
-            padding: 12px 20px;
-            border-radius: 8px;
-            margin: 2px 10px;
-            transition: all 0.3s;
+        /* ============ Sidebar ============ */
+        .sidebar{
+            min-height:100vh;
+            position:sticky;
+            top:0;
+            height:100vh;
+            overflow-y:auto;
+            padding: 18px 12px 18px 12px;
+            background: linear-gradient(180deg, var(--secondary) 0%, #2b2f8f 100%);
+            border-right: 1px solid rgba(255,255,255,0.08);
         }
 
-        .sidebar .nav-link:hover {
-            color: #fff;
-            background: rgba(255,255,255,0.1);
-        }
+        .sidebar::-webkit-scrollbar{width:6px;}
+        .sidebar::-webkit-scrollbar-track{background: rgba(255,255,255,0.05);}
+        .sidebar::-webkit-scrollbar-thumb{background: rgba(255,255,255,0.25); border-radius: 10px;}
 
-        .sidebar .nav-link.active {
-            color: #fff;
-            background: rgba(52, 152, 219, 0.5);
+        .app-logo{
+            padding: 14px 8px;
+            border-radius: 14px;
+            margin: 4px 8px 16px 8px;
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(255,255,255,0.10);
         }
-
-        .sidebar .nav-link i {
-            margin-right: 10px;
-            width: 20px;
-            text-align: center;
+        .app-logo h4{
+            color:#fff;
+            font-weight: 800;
+            letter-spacing:.4px;
+            font-size: 1.05rem;
+            margin-bottom: 0.15rem;
         }
+        .app-logo h4 i{color: #93c5fd;}
+        .app-logo small{color: rgba(255,255,255,0.75); font-weight: 500;}
 
-        .sidebar .nav-section-title {
-            color: rgba(255,255,255,0.4);
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            padding: 15px 20px 5px 20px;
-            font-weight: 600;
+        .user-info{
+            padding: 14px 10px;
+            border-radius: 16px;
+            margin: 0 8px 14px 8px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.10);
+            text-align:center;
         }
-
-        .sidebar .user-info {
-            padding: 20px 20px 30px 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            margin-bottom: 10px;
-            text-align: center;
-        }
-
-        .sidebar .user-info .avatar {
-            width: 60px;
-            height: 60px;
+        .user-info .avatar{
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
-            background: #3498db;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 10px;
-            font-size: 24px;
-            color: #fff;
-        }
-
-        .sidebar .user-info .username {
-            color: #fff;
-            font-weight: 600;
-            display: block;
-        }
-
-        .sidebar .user-info .role-badge {
-            font-size: 0.75rem;
-            padding: 3px 12px;
-            border-radius: 20px;
-            background: rgba(255,255,255,0.2);
-            color: #fff;
-            display: inline-block;
-            margin-top: 5px;
-        }
-
-        .sidebar .nav-link .badge {
-            float: right;
-            margin-top: 3px;
-        }
-
-        .sidebar .app-logo {
-            text-align: center;
-            padding: 15px 0 20px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            margin-bottom: 15px;
-        }
-
-        .sidebar .app-logo h4 {
-            color: #fff;
-            font-weight: 700;
-        }
-
-        .sidebar .app-logo h4 i {
-            color: #3498db;
-        }
-
-        .sidebar .app-logo small {
-            color: rgba(255,255,255,0.5);
-            font-size: 0.75rem;
-            display: block;
-        }
-
-        .main-content {
-            padding: 20px 30px;
-            background: #f8f9fa;
-            min-height: 100vh;
-        }
-
-        .sidebar-toggle {
-            display: none;
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            z-index: 1050;
-            background: #2c3e50;
-            border: none;
-            color: #fff;
-            padding: 8px 12px;
-            border-radius: 5px;
+            background: rgba(147,197,253,0.25);
+            border: 1px solid rgba(147,197,253,0.35);
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            margin: 0 auto 8px auto;
+            color: #e0f2fe;
             font-size: 20px;
         }
-
-        @media (max-width: 768px) {
-            .sidebar {
-                position: fixed;
-                left: -280px;
-                width: 280px;
-                z-index: 1040;
-                transition: left 0.3s ease;
-                height: 100vh;
-                overflow-y: auto;
-            }
-
-            .sidebar.show {
-                left: 0;
-            }
-
-            .sidebar-toggle {
-                display: block;
-            }
-
-            .main-content {
-                padding: 60px 15px 20px 15px;
-            }
-
-            .overlay {
-                display: none;
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: rgba(0,0,0,0.5);
-                z-index: 1030;
-            }
-
-            .overlay.show {
-                display: block;
-            }
-        }
-
-        @media (min-width: 769px) {
-            .sidebar {
-                width: 260px;
-                position: sticky;
-            }
-
-            .sidebar.show {
-                left: 0 !important;
-            }
-
-            .main-content {
-                margin-left: 0;
-            }
-        }
-
-        .sidebar::-webkit-scrollbar {
-            width: 5px;
-        }
-
-        .sidebar::-webkit-scrollbar-track {
-            background: rgba(255,255,255,0.1);
-        }
-
-        .sidebar::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,0.3);
-            border-radius: 10px;
-        }
-
-        .sidebar::-webkit-scrollbar-thumb:hover {
-            background: rgba(255,255,255,0.5);
-        }
-
-        /* Style des cartes */
-        .card {
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.12);
-        }
-
-        .card-header {
-            background: transparent;
-            border-bottom: 1px solid rgba(0,0,0,0.06);
-            padding: 16px 20px;
+        .user-info .username{color:#fff; font-weight:700; display:block; line-height: 1.1;}
+        .user-info .role-badge{
+            display:inline-flex;
+            margin-top: 6px;
+            font-size: .78rem;
+            padding: 4px 12px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.14);
+            color: rgba(255,255,255,0.92);
             font-weight: 600;
         }
 
-        .table {
-            background: #fff;
+        .nav-section-title{
+            color: rgba(255,255,255,0.65);
+            font-size: .72rem;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            font-weight: 800;
+            padding: 12px 12px 8px 12px;
+        }
+
+        .sidebar .nav-link{
+            color: rgba(255,255,255,0.78);
+            padding: 11px 12px;
+            margin: 4px 6px;
             border-radius: 12px;
+            border: 1px solid transparent;
+            transition: background .2s ease, transform .15s ease, border-color .2s ease, color .2s ease;
+            display:flex;
+            align-items:center;
+            gap: 10px;
+            font-weight: 650;
+            font-size: .95rem;
+        }
+
+        .sidebar .nav-link i{width: 20px; text-align:center; font-size: 1.05rem;}
+
+        .sidebar .nav-link:hover{
+            background: rgba(255,255,255,0.08);
+            border-color: rgba(255,255,255,0.10);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        .sidebar .nav-link.active{
+            background: rgba(37,99,235,0.22);
+            border-color: rgba(147,197,253,0.35);
+            color:#fff;
+            box-shadow: 0 10px 26px rgba(37,99,235,0.18);
+        }
+
+        /* ============ Navbar ============ */
+        .topbar{
+            position: fixed;
+            top:0;
+            left:0;
+            right:0;
+            z-index: 1020;
+            background: rgba(248,250,252,0.75);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(226,232,240,0.9);
+        }
+
+        .topbar-inner{padding: 14px 20px;}
+
+        .topbar-brand{
+            font-weight: 900;
+            color: var(--text);
+            display:flex;
+            align-items:center;
+            gap:10px;
+        }
+        .topbar-brand i{color: var(--primary);}
+
+        .topbar-welcome{color: var(--text); opacity:.9; font-weight: 650;}
+
+        .topbar-icon-btn{
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: #fff;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            transition: transform .15s ease, box-shadow .2s ease;
+        }
+        .topbar-icon-btn:hover{transform: translateY(-1px); box-shadow: 0 10px 26px rgba(30,41,59,0.08);}
+
+        /* ============ Cards ============ */
+        .card{
+            border: 1px solid rgba(226,232,240,0.9);
+            border-radius: 16px;
+            box-shadow: 0 6px 24px rgba(15,23,42,0.05);
+            transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+            background: var(--card);
+        }
+        .card:hover{
+            transform: translateY(-2px);
+            box-shadow: 0 14px 36px rgba(15,23,42,0.10);
+            border-color: rgba(37,99,235,0.35);
+        }
+        .card-header{
+            background: transparent;
+            border-bottom: 1px solid rgba(226,232,240,0.9);
+            padding: 16px 20px;
+            font-weight: 800;
+        }
+
+        /* ============ Tables ============ */
+        .table{
+            background: #fff;
+            border-radius: 14px;
+            border: 1px solid rgba(226,232,240,0.9);
             overflow: hidden;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            box-shadow: 0 6px 24px rgba(15,23,42,0.04);
         }
 
-        .table thead {
-            background: #f8f9fa;
+        .table thead{background: rgba(248,250,252,0.95);}
+
+        /* ============ Forms ============ */
+        .app-form .form-floating{margin-bottom: 1rem;}
+        .app-form .form-floating > select,
+        .app-form .form-floating > textarea,
+        .app-form .form-floating > input{
+            height: 60px;
+            border-radius: 15px;
+            border: 2px solid rgba(226,232,240,1);
+            background: #fff;
+            padding-left: 15px;
+        }
+        .app-form .form-floating textarea{height: 160px !important; padding-top: 25px;}
+
+        .app-form .form-floating:focus-within > select,
+        .app-form .form-floating:focus-within > textarea,
+        .app-form .form-floating:focus-within > input{
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 5px rgba(79,70,229,.12);
         }
 
-        .footer {
-            margin-top: 40px;
-            padding: 20px 0;
-            text-align: center;
-            color: #6c757d;
-            border-top: 1px solid #e9ecef;
+        .app-form label{color:#64748b; font-weight: 700;}
+        .app-form .text-danger{font-size:.9rem;}
+
+        /* ============ Buttons ============ */
+        .btn-app{
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: 0;
+            color: #fff;
+            font-weight: 800;
+            border-radius: 14px;
+            padding: 10px 14px;
+            display:inline-flex;
+            align-items:center;
+            gap: 8px;
+            box-shadow: 0 12px 30px rgba(37,99,235,0.25);
+            transition: transform .15s ease, box-shadow .2s ease, filter .2s ease;
+        }
+        .btn-app:hover{transform: translateY(-1px); filter: brightness(1.02); box-shadow: 0 16px 38px rgba(37,99,235,0.28);}
+
+        /* ============ Animations ============ */
+        @keyframes fadeInUp{
+            from{opacity:0; transform: translateY(10px);}
+            to{opacity:1; transform: translateY(0);}
+        }
+
+        /* ============ Mobile sidebar ============ */
+        .sidebar-toggle{
+            display:none;
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            z-index: 1060;
+            background: #fff;
+            border: 1px solid var(--border);
+            color: var(--text);
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            box-shadow: 0 12px 30px rgba(15,23,42,0.08);
+        }
+
+        .overlay{
+            display:none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15,23,42,0.5);
+            z-index: 1040;
+        }
+
+        @media (max-width: 768px){
+            .sidebar-toggle{display:flex; align-items:center; justify-content:center;}
+            .sidebar{position: fixed; left:-300px; width: 300px; z-index: 1050; transition: left .28s ease;}
+            .sidebar.show{left: 0;}
+            .overlay.show{display:block;}
+            .main-content{padding: 74px 15px 20px 15px;}
+        }
+
+        @media (min-width: 769px){
+            .sidebar{width: 270px;}
         }
     </style>
 </head>
@@ -253,18 +305,48 @@
     </button>
     <div class="overlay" id="sidebarOverlay"></div>
 
+    <!-- Topbar / Navbar -->
+    <div class="topbar">
+        <div class="topbar-inner container-fluid">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="topbar-brand">
+                    <i class="bi bi-kanban"></i>
+                    <span class="d-none d-md-inline">GESTPROJET</span>
+                </div>
+
+                <div class="d-flex align-items-center gap-2">
+                    <div class="d-none d-lg-flex align-items-center gap-2">
+                        <span class="topbar-welcome">Bienvenue,</span>
+                        <strong>{{ user.username }}</strong>
+                    </div>
+
+                    <button type="button" class="topbar-icon-btn position-relative" aria-label="Notifications">
+                        <i class="bi bi-bell"></i>
+                        {% if user.role == 'MEMBER' and todo_count %}
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning">
+                                {{ todo_count|default:0 }}
+                            </span>
+                        {% endif %}
+                    </button>
+
+                    <div class="topbar-icon-btn" aria-label="Profil" title="Profil">
+                        <i class="bi bi-person-circle"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="container-fluid p-0">
         <div class="row g-0">
             <!-- Sidebar -->
             <div class="col-md-3 col-lg-2" style="flex: 0 0 auto; width: auto;">
                 <div class="sidebar" id="sidebar">
-                    <!-- Logo -->
                     <div class="app-logo">
-                        <h4><i class="bi bi-kanban"></i> Gestion Projet</h4>
+                        <h4><i class="bi bi-kanban"></i> GESTPROJET</h4>
                         <small>Plateforme de suivi</small>
                     </div>
 
-                    <!-- Informations utilisateur -->
                     <div class="user-info">
                         <div class="avatar">
                             <i class="bi bi-person-fill"></i>
@@ -273,13 +355,12 @@
                         <span class="role-badge">{{ user.get_role_display }}</span>
                     </div>
 
-                    <!-- Navigation -->
                     <nav class="nav flex-column">
                         <div class="nav-section-title">Navigation</div>
 
                         <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}"
                            href="{% url 'home' %}">
-                            <i class="bi bi-house"></i> Accueil
+                            <i class="bi bi-house"></i> Dashboard
                         </a>
 
                         <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"
@@ -289,7 +370,7 @@
 
                         <a class="nav-link {% if 'tasks' in request.path and 'my-tasks' in request.path %}active{% endif %}"
                            href="{% url 'tasks:my_tasks' %}">
-                            <i class="bi bi-check2-square"></i> Mes tâches
+                            <i class="bi bi-check2-square"></i> Tâches
                             {% if user.role == 'MEMBER' %}
                                 <span class="badge bg-warning rounded-pill">{{ todo_count|default:0 }}</span>
                             {% endif %}
@@ -306,7 +387,7 @@
 
                         <a class="nav-link {% if 'tracking' in request.path %}active{% endif %}"
                            href="{% url 'tracking:log_list' %}">
-                            <i class="bi bi-clock"></i> Journal quotidien
+                            <i class="bi bi-journal-text"></i> Daily Logs
                         </a>
 
                         <a class="nav-link {% if 'tracking' in request.path and 'create' in request.path %}active{% endif %}"
@@ -318,29 +399,35 @@
 
                         <a class="nav-link {% if 'reports' in request.path %}active{% endif %}"
                            href="{% url 'reports:report_dashboard' %}">
-                            <i class="bi bi-graph-up"></i> Tableau de bord
+                            <i class="bi bi-graph-up"></i> Rapports
                         </a>
 
-                        {% if user.role == 'ADMIN' or user.role == 'PM' %}
-                            <div class="nav-section-title">Administration</div>
+                        <a class="nav-link {% if 'reports/monthly' in request.path %}active{% endif %}"
+                           href="{% url 'reports:monthly_report_dashboard' %}">
+                            <i class="bi bi-calendar-month"></i> Rapport mensuel
+                        </a>
 
+
+                        <div class="nav-section-title">Administration</div>
+
+                        {% if user.role == 'ADMIN' or user.role == 'PM' %}
                             <a class="nav-link {% if 'projects/admin' in request.path %}active{% endif %}"
                                href="{% url 'projects:admin_project_list' %}">
-                                <i class="bi bi-gear"></i> Admin Projets
+                                <i class="bi bi-gear"></i> Paramètres
                             </a>
+                        {% endif %}
 
-                            {% if user.role == 'ADMIN' %}
-                                <a class="nav-link mt-1" href="{% url 'admin:index' %}" target="_blank">
-                                    <i class="bi bi-database-gear"></i> Django Admin
-                                </a>
-                            {% endif %}
+                        {% if user.role == 'ADMIN' %}
+                            <a class="nav-link mt-1" href="{% url 'admin:index' %}" target="_blank">
+                                <i class="bi bi-database-gear"></i> Django Admin
+                            </a>
                         {% endif %}
 
                         <div class="nav-section-title">Compte</div>
 
                         <form action="{% url 'logout' %}" method="post" style="display: inline; width: 100%;">
                             {% csrf_token %}
-                            <button type="submit" class="nav-link" style="background: none; border: none; color: rgba(255,255,255,0.7); width: 100%; text-align: left; padding: 12px 20px; cursor: pointer;">
+                            <button type="submit" class="nav-link" style="background: none; border: none; width: 100%; text-align: left; cursor: pointer;">
                                 <i class="bi bi-box-arrow-right"></i> Déconnexion
                             </button>
                         </form>
@@ -351,7 +438,6 @@
             <!-- Contenu principal -->
             <div class="col">
                 <div class="main-content">
-                    <!-- Messages flash -->
                     {% if messages %}
                         {% for message in messages %}
                             <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
@@ -361,7 +447,6 @@
                         {% endfor %}
                     {% endif %}
 
-                    <!-- ⭐ UN SEUL BLOC CONTENT ⭐ -->
                     {% block content %}{% endblock %}
                 </div>
             </div>
@@ -401,6 +486,7 @@
         }
     </script>
 
+    {% block extra_css %}{% endblock %}
     {% block extra_js %}{% endblock %}
 </body>
 </html>

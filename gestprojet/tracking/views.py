@@ -20,8 +20,17 @@ class DailyLogCreateView(LoginRequiredMixin, CreateView):
 
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
+
+        # ====== Classes Bootstrap pour icônes (input-icon-group) ======
+        form.fields['task'].widget.attrs.update({'class': 'form-select'})
+        form.fields['time_spent_minutes'].widget.attrs.update({'class': 'form-control'})
+        form.fields['progress_delta'].widget.attrs.update({'class': 'form-control'})
+        form.fields['comment'].widget.attrs.update({'class': 'form-control'})
+        form.fields['difficulties'].widget.attrs.update({'class': 'form-control'})
+
         form.fields['task'].queryset = Task.objects.filter(assigned_to=self.request.user)
         return form
+
 
 
 class DailyLogListView(LoginRequiredMixin, ListView):

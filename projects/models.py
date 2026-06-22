@@ -35,7 +35,11 @@ class ProjectMembership(models.Model):
 
 class Activity(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='activities')
+    code = models.CharField(max_length=50)
     name = models.CharField(max_length=200)
+
+
+    description = models.TextField(blank=True)
     responsible = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='responsible_activities')
     start_date = models.DateField()
     end_date = models.DateField()
@@ -44,12 +48,17 @@ class Activity(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        unique_together = ('project', 'code')
+
     def __str__(self):
         return f"{self.name} ({self.project.name})"
 
 
+
 class SubActivity(models.Model):
     STATUS_CHOICES = (
+
         ('TODO', 'À faire'),
         ('INPROGRESS', 'En cours'),
         ('DONE', 'Terminée'),
@@ -57,12 +66,19 @@ class SubActivity(models.Model):
     )
 
     activity = models.ForeignKey(Activity, on_delete=models.CASCADE, related_name='sub_activities')
+    code = models.CharField(max_length=50, blank=True, default='')
+
     name = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
     assigned_to = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='assigned_sub_activities')
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='TODO')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        unique_together = ('activity', 'code')
+
     def __str__(self):
         return f"{self.name} ({self.activity.name})"
+
 

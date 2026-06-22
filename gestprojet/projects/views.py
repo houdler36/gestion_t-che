@@ -172,7 +172,12 @@ class AdminActivityCreateView(LoginRequiredMixin, AdminOrPMMixin, CreateView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
+        # IMPORTANT: set the project on the instance so templates can reverse URLs
+        # during the GET (before form_valid runs).
         self.project = get_object_or_404(Project, pk=self.kwargs['project_pk'])
+
+        # Pre-fill the FK so `form.instance.project.pk` is available in the template.
+        kwargs['instance'] = Activity(project=self.project)
         kwargs['project'] = self.project
         return kwargs
 
@@ -222,8 +227,13 @@ class AdminSubActivityCreateView(LoginRequiredMixin, AdminOrPMMixin, CreateView)
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         self.activity = get_object_or_404(Activity, pk=self.kwargs['activity_pk'])
+
+        # Garantit que le template a accès à form.instance.activity.project.pk pendant le GET.
+        # (sinon Django essaie de reverse avec pk='' et déclenche NoReverseMatch)
         kwargs['activity'] = self.activity
+        kwargs['instance'] = SubActivity(activity=self.activity)
         return kwargs
+
 
     def form_valid(self, form):
         form.instance.activity = self.activity

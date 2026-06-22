@@ -1,27 +1,230 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if form.instance.pk %}Modifier{% else %}Créer{% endif %} une tâche{% endblock %}
+
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/forms.css' %}">
+{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header">
-                <h4>{% if form.instance.pk %}Modifier{% else %}Créer{% endif %} une tâche</h4>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <div class="form-card">
+                <div class="form-header">
+                    <h4>
+                        <i class="bi bi-{% if form.instance.pk %}pencil{% else %}plus-circle{% endif %}"></i>
+                        {% if form.instance.pk %}Modifier{% else %}Créer{% endif %} une tâche
+                    </h4>
+                    <p>{% if form.instance.pk %}Modifiez les informations de la tâche{% else %}Ajoutez une nouvelle tâche{% endif %}</p>
+                </div>
+
+                <div class="form-body">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                {% for error in form.non_field_errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <div class="form-group">
+                            <label for="{{ form.name.id_for_label }}">
+                                Nom <span class="required">*</span>
+                            </label>
+                            <div class="input-icon-group">
+                                <span class="input-icon"><i class="bi bi-tag"></i></span>
+                                {{ form.name }}
+                            </div>
+                            {% if form.name.errors %}
+                                <div class="form-errors">
+                                    <i class="bi bi-exclamation-circle"></i>
+                                    {% for error in form.name.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.description.id_for_label }}">
+                                Description
+                            </label>
+                            <div class="input-icon-group">
+                                <span class="input-icon"><i class="bi bi-file-text"></i></span>
+                                {{ form.description }}
+                            </div>
+                            <div class="form-text">
+                                <i class="bi bi-info-circle"></i>
+                                Description détaillée de la tâche (optionnel)
+                            </div>
+                            {% if form.description.errors %}
+                                <div class="form-errors">
+                                    <i class="bi bi-exclamation-circle"></i>
+                                    {% for error in form.description.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.sub_activity.id_for_label }}">
+                                        Sous-activité
+                                    </label>
+                                    <div class="input-icon-group">
+                                        <span class="input-icon"><i class="bi bi-diagram-2"></i></span>
+                                        {{ form.sub_activity }}
+                                    </div>
+                                    <div class="form-text">
+                                        <i class="bi bi-info-circle"></i>
+                                        Liée à une sous-activité
+                                    </div>
+                                    {% if form.sub_activity.errors %}
+                                        <div class="form-errors">
+                                            <i class="bi bi-exclamation-circle"></i>
+                                            {% for error in form.sub_activity.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.project.id_for_label }}">
+                                        Projet
+                                    </label>
+                                    <div class="input-icon-group">
+                                        <span class="input-icon"><i class="bi bi-folder"></i></span>
+                                        {{ form.project }}
+                                    </div>
+                                    <div class="form-text">
+                                        <i class="bi bi-info-circle"></i>
+                                        Projet lié (optionnel)
+                                    </div>
+                                    {% if form.project.errors %}
+                                        <div class="form-errors">
+                                            <i class="bi bi-exclamation-circle"></i>
+                                            {% for error in form.project.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.assigned_to.id_for_label }}">
+                                        Assigné à <span class="required">*</span>
+                                    </label>
+                                    <div class="input-icon-group">
+                                        <span class="input-icon"><i class="bi bi-person"></i></span>
+                                        {{ form.assigned_to }}
+                                    </div>
+                                    {% if form.assigned_to.errors %}
+                                        <div class="form-errors">
+                                            <i class="bi bi-exclamation-circle"></i>
+                                            {% for error in form.assigned_to.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.priority.id_for_label }}">
+                                        Priorité
+                                    </label>
+                                    <div class="input-icon-group">
+                                        <span class="input-icon"><i class="bi bi-flag"></i></span>
+                                        {{ form.priority }}
+                                    </div>
+                                    {% if form.priority.errors %}
+                                        <div class="form-errors">
+                                            <i class="bi bi-exclamation-circle"></i>
+                                            {% for error in form.priority.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.due_date.id_for_label }}">
+                                        Date limite <span class="required">*</span>
+                                    </label>
+                                    <div class="input-icon-group">
+                                        <span class="input-icon"><i class="bi bi-calendar-event"></i></span>
+                                        {{ form.due_date }}
+                                    </div>
+                                    {% if form.due_date.errors %}
+                                        <div class="form-errors">
+                                            <i class="bi bi-exclamation-circle"></i>
+                                            {% for error in form.due_date.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.status.id_for_label }}">
+                                        Statut
+                                    </label>
+                                    <div class="input-icon-group">
+                                        <span class="input-icon"><i class="bi bi-circle"></i></span>
+                                        {{ form.status }}
+                                    </div>
+                                    {% if form.status.errors %}
+                                        <div class="form-errors">
+                                            <i class="bi bi-exclamation-circle"></i>
+                                            {% for error in form.status.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary flex-grow-1">
+                                <i class="bi bi-save"></i> Enregistrer
+                            </button>
+                            <a href="{% url 'tasks:task_list' %}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Annuler
+                            </a>
+                        </div>
+                    </form>
+                </div>
             </div>
-            <div class="card-body">
-                <form method="post">
-                    {% csrf_token %}
-                    {{ form.as_p }}
-                    <div class="mt-3">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-save"></i> Enregistrer
-                        </button>
-                        <a href="{% url 'tasks:my_tasks' %}" class="btn btn-secondary">Annuler</a>
-                    </div>
-                </form>
-            </div>
+
         </div>
     </div>
 </div>
 {% endblock %}
+
 
 

@@ -71,6 +71,7 @@
             <div class="d-flex justify-content-between align-items-center">
                 <div>
                     <h5 class="mb-1">{{ activity.name }}</h5>
+                    <small class="text-muted d-block"><i class="bi bi-hash"></i> Code: {{ activity.code }}</small>
                     <small class="text-muted">
                         <i class="bi bi-person"></i> {{ activity.responsible.username }} |
                         <i class="bi bi-calendar"></i> {{ activity.start_date }} → {{ activity.end_date }}
@@ -101,7 +102,7 @@
 
                 {% for sub in activity.sub_activities.all %}
                 <div class="d-flex justify-content-between align-items-center bg-light p-2 rounded mt-1">
-                    <span>{{ sub.name }}</span>
+                    <span>{{ sub.name }} <small class="text-muted">(Code: {{ sub.code }})</small></span>
                     <div>
                         <span class="badge bg-secondary me-2">{{ sub.get_status_display }}</span>
                         <small class="text-muted">({{ sub.assigned_to.username }})</small>
