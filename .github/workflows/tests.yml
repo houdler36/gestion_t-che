@@ -14,9 +14,9 @@ jobs:
       postgres:
         image: postgres:15
         env:
-          POSTGRES_USER: test_user
-          POSTGRES_PASSWORD: test_password
-          POSTGRES_DB: test_db
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: github_actions
         ports:
           - 5432:5432
         options: >-
@@ -48,7 +48,7 @@ jobs:
 
       - name: Exécution des tests
         env:
-          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_db
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/github_actions
           DJANGO_SETTINGS_MODULE: gestprojet.settings
           SECRET_KEY: test-secret-key-not-for-production
           DEBUG: "True"
