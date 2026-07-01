@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
 
-{% block title %}📅 Rapport mensuel{% endblock %}
+{% block title %}📅 Rapport hebdomadaire{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-  <h2>📅 Rapport mensuel</h2>
+  <h2>📋 Rapport hebdomadaire</h2>
   <div class="d-flex gap-2">
-    <a class="btn btn-outline-primary" href="{% url 'reports:export_monthly_report_csv' %}?year={{ year }}&month={{ month|stringformat:"02d" }}{% if selected_project %}&project={{ selected_project.id }}{% endif %}{% if selected_user %}&user={{ selected_user.id }}{% endif %}">
+    <a class="btn btn-outline-primary" href="{% url 'reports:export_weekly_report_csv' %}?year={{ year }}&week={{ week }}{% if selected_project %}&project={{ selected_project.id }}{% endif %}{% if selected_user %}&user={{ selected_user.id }}{% endif %}">
       <i class="bi bi-download"></i> Export CSV
     </a>
   </div>
@@ -15,16 +15,19 @@
 <div class="card mb-4">
   <div class="card-body">
     <form method="get" class="row g-3 align-items-end">
-      <div class="col-md-3">
-        <label class="form-label" for="month">Mois</label>
-        <select class="form-select" id="month" name="month">
-          {% for ym in allowed_months %}
-            <option value="{{ ym }}" {% if ym == selected_month_ym %}selected{% endif %}>
-              {{ ym|slice:':4' }}-{{ ym|slice:'5:7' }}
+      <div class="col-md-4">
+        <label class="form-label" for="week">Semaine</label>
+        <select class="form-select" id="week" name="week">
+          {% for wy, ww in allowed_weeks %}
+            <option value="{{ wy }}-{{ ww|stringformat:"02d" }}" {% if wy == year and ww == week %}selected{% endif %}>
+              S{{ ww|stringformat:"02d" }} ({{ wy }})
             </option>
           {% endfor %}
         </select>
+        <div class="form-text">Semaines autorisées pour le mois sélectionné.</div>
       </div>
+
+
 
       <div class="col-md-3">
         <label class="form-label" for="project">Projet</label>
@@ -37,6 +40,7 @@
           {% endfor %}
         </select>
       </div>
+
       <div class="col-md-3">
         <label class="form-label" for="user">Personne</label>
         <select class="form-select" id="user" name="user">
@@ -48,14 +52,14 @@
           {% endfor %}
         </select>
       </div>
-      <div class="col-md-3 d-grid">
-        <button type="submit" class="btn btn-primary">
-          Filtrer
-        </button>
+
+      <div class="col-md-2 d-grid">
+        <button type="submit" class="btn btn-primary">Filtrer</button>
       </div>
 
-      {# year est déduit de month côté serveur, mais on le conserve au cas où #}
-      <input type="hidden" name="year" value="{{ year }}" />
+      {# Mois contexte (optionnel) #}
+      <input type="hidden" name="month" value="{{ month_ctx_ym }}" />
+
     </form>
   </div>
 </div>
@@ -95,6 +99,16 @@
   </div>
 </div>
 
+<div class="row mb-4">
+  <div class="col-md-12">
+    <div class="alert alert-secondary d-flex justify-content-between align-items-center">
+      <div>
+        <b>{{ week_label }}</b>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="row">
   <div class="col-md-12 mb-4">
     <div class="card">
@@ -106,8 +120,8 @@
               <tr>
                 <th>Personne</th>
                 <th>Jours de présence</th>
-                <th>Entrées (logs)</th>
 
+                <th>Entrées (logs)</th>
                 <th>Tâches totales</th>
                 <th>Terminées</th>
                 <th>En cours / À faire</th>
@@ -175,7 +189,6 @@
               <tr>
                 <th>Personne</th>
                 <th>Date</th>
-
                 <th>Activité</th>
                 <th>Sous-activité</th>
                 <th>Tâche logs</th>
@@ -184,20 +197,18 @@
                 <th>Présence</th>
 
               </tr>
+
             </thead>
             <tbody>
-              {% for d in monthly_details %}
-
+              {% for d in weekly_details %}
                 <tr>
                   <td>{{ d.user.get_full_name|default:d.user.username }}</td>
+    
                   <td>{{ d.date }}</td>
-
                   <td>{{ d.activity__name }}</td>
                   <td>{{ d.sub_activity__name }}</td>
                   <td>{{ d.task__name }}</td>
-                  <td>
-                    <span class="badge bg-secondary">{{ d.task__status_display }}</span>
-                  </td>
+                  <td><span class="badge bg-secondary">{{ d.task__status_display }}</span></td>
                   <td><span class="badge bg-success">Présent ✅</span></td>
                 </tr>
               {% empty %}
@@ -213,8 +224,5 @@
   </div>
 </div>
 
-{# Optionnel : on peut ajouter Chart.js plus tard si besoin #}
 {% endblock %}
-
-
 

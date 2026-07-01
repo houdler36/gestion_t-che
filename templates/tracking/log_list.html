@@ -31,25 +31,24 @@
                             <th>Utilisateur</th>
                             <th>Tâche</th>
                             <th>Date</th>
-                            <th class="text-nowrap">Temps passé</th>
+                            <th class="text-nowrap">Présent</th>
+
                             <th class="text-nowrap">Progression</th>
                             <th>Commentaire</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for log in logs %}
-                            <tr>
+<tr>
                                 <td class="text-nowrap">{{ log.user.username }}</td>
                                 <td>{{ log.task.name }}</td>
                                 <td class="text-nowrap">{{ log.date }}</td>
                                 <td class="text-nowrap">
-                                    {% if log.time_spent_minutes %}
-                                        {{ log.time_spent_minutes }} min
-                                    {% else %}
-                                        —
-                                    {% endif %}
+                                    <span class="badge bg-success">✅</span>
                                 </td>
+
                                 <td class="text-nowrap">
+
                                     {% with p=log.progress_delta|default:0 %}
                                         {% if p|floatformat:0|add:0 < 50 %}
                                             <span class="badge bg-danger">{{ log.progress_delta }}%</span>

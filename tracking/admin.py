@@ -4,7 +4,8 @@ from .models import DailyLog
 
 @admin.register(DailyLog)
 class DailyLogAdmin(admin.ModelAdmin):
-    list_display = ('user', 'task', 'date', 'time_spent_minutes', 'progress_delta')
+    list_display = ('user', 'task', 'date', 'progress_delta')
+
     list_filter = ('date', 'user')
     search_fields = ('user__username', 'task__name', 'comment')
     readonly_fields = ('created_at',)
@@ -14,8 +15,9 @@ class DailyLogAdmin(admin.ModelAdmin):
             'fields': ('user', 'task', 'date')
         }),
         ('Suivi', {
-            'fields': ('time_spent', 'time_spent_minutes', 'progress_delta')
+            'fields': ('progress_delta',)
         }),
+
         ('Commentaires', {
             'fields': ('comment', 'difficulties')
         }),

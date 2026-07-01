@@ -3,7 +3,9 @@ from django.conf import settings
 from projects.models import SubActivity, Project
 
 class Task(models.Model):
+
     PRIORITY_CHOICES = (
+
         ('LOW', 'Faible'),
         ('MEDIUM', 'Moyenne'),
         ('HIGH', 'Haute'),

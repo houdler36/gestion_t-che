@@ -29,16 +29,12 @@ def dashboard(request):
     tasks_total = tasks_qs.count()
     tasks_done = tasks_qs.filter(status='DONE').count()
 
-    # Temps total (heures) via time_spent_minutes (ou fallback time_spent)
+    # Temps total (présence) : 1 DailyLog distinct = 1 jour de présence
     logs_qs = DailyLog.objects.filter(user=user).order_by('-date')
     recent_logs = list(logs_qs[:5])
 
-    # time_spent_minutes = minutes, on convertit en heures.
-    time_minutes = 0
-    for l in logs_qs:
-        if getattr(l, 'time_spent_minutes', None) is not None:
-            time_minutes += (l.time_spent_minutes or 0)
-    time_spent_hours = round(time_minutes / 60, 0)
+    distinct_present_days = logs_qs.values('date').distinct().count()
+    time_spent_hours = distinct_present_days
 
     recent_logs_count = len(recent_logs)
 
@@ -68,11 +64,11 @@ def dashboard(request):
     logs_yesterday = logs_qs.filter(date=yesterday).count()
     logs_delta_color, logs_delta_text = delta_color_and_text(logs_today, logs_yesterday)
 
-    # Variation temps (heuristique basée sur minutes de log)
-    minutes_today = logs_qs.filter(date=today).aggregate(models.Sum('time_spent_minutes'))['time_spent_minutes__sum'] or 0
-    minutes_yesterday = logs_qs.filter(date=yesterday).aggregate(models.Sum('time_spent_minutes'))['time_spent_minutes__sum'] or 0
+    # Variation temps (désormais = variation du nombre de jours de présence)
+    days_today = logs_qs.filter(date=today).values('date').distinct().count()
+    days_yesterday = logs_qs.filter(date=yesterday).values('date').distinct().count()
     try:
-        time_delta_color, time_delta_text = delta_color_and_text(minutes_today or time_minutes, minutes_yesterday or time_minutes)
+        time_delta_color, time_delta_text = delta_color_and_text(days_today or time_spent_hours, days_yesterday or time_spent_hours)
     except Exception:
         time_delta_color, time_delta_text = ('#64748b', '0%')
 

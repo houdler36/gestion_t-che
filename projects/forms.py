@@ -61,20 +61,18 @@ class ActivityForm(forms.ModelForm):
 class SubActivityForm(forms.ModelForm):
     class Meta:
         model = SubActivity
-        fields = ['code', 'name', 'description', 'assigned_to', 'status']
+        fields = ['code', 'name', 'description', 'status']
         widgets = {
             'code': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Code de la sous-activité'}),
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': "Nom de la sous-activité"}),
             'description': forms.Textarea(
                 attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Description...'}
             ),
-            'assigned_to': forms.Select(attrs={'class': 'form-select'}),
             'status': forms.Select(attrs={'class': 'form-select'}),
         }
 
 
     def __init__(self, activity, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['assigned_to'].queryset = activity.project.members.all()
-        self.fields['assigned_to'].empty_label = 'Choisir un membre'
+
 

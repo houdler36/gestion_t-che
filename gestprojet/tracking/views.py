@@ -9,27 +9,38 @@ from tracking.models import DailyLog
 
 class DailyLogCreateView(LoginRequiredMixin, CreateView):
     model = DailyLog
-    fields = ['task', 'time_spent_minutes', 'progress_delta', 'comment', 'difficulties']
+    fields = ['task', 'progress_delta', 'comment', 'difficulties']
     template_name = 'tracking/log_form.html'
     success_url = reverse_lazy('tracking:log_list')
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+
+        # Filtre : uniquement les tâches à faire ou en cours (affiché correctement à la création)
+        if 'task' in form.fields:
+            form.fields['task'].queryset = Task.objects.filter(
+                assigned_to=self.request.user,
+                status__in=['TODO', 'INPROGRESS'],
+            )
+
+        # S'assurer que le rendu reste propre (classe CSS standard)
+        for _, field in form.fields.items():
+            field.widget.attrs.setdefault('class', 'form-control')
+
+        return form
 
     def form_valid(self, form):
         form.instance.user = self.request.user
         messages.success(self.request, 'Journal enregistré avec succès !')
         return super().form_valid(form)
 
-    def get_form(self, form_class=None):
-        form = super().get_form(form_class)
 
-        # ====== Classes Bootstrap pour icônes (input-icon-group) ======
-        form.fields['task'].widget.attrs.update({'class': 'form-select'})
-        form.fields['time_spent_minutes'].widget.attrs.update({'class': 'form-control'})
-        form.fields['progress_delta'].widget.attrs.update({'class': 'form-control'})
-        form.fields['comment'].widget.attrs.update({'class': 'form-control'})
-        form.fields['difficulties'].widget.attrs.update({'class': 'form-control'})
 
-        form.fields['task'].queryset = Task.objects.filter(assigned_to=self.request.user)
-        return form
+
+
+
+
+
 
 
 

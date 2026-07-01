@@ -54,7 +54,6 @@ class SubActivity(models.Model):
     
     activity = models.ForeignKey(Activity, on_delete=models.CASCADE, related_name='sub_activities')
     name = models.CharField(max_length=200)
-    assigned_to = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='assigned_sub_activities')
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='TODO')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -57,6 +57,7 @@ class Activity(models.Model):
 
 
 class SubActivity(models.Model):
+
     STATUS_CHOICES = (
 
         ('TODO', 'À faire'),
@@ -70,7 +71,6 @@ class SubActivity(models.Model):
 
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
-    assigned_to = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='assigned_sub_activities')
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='TODO')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

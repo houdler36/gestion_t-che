@@ -1,6 +1,8 @@
-# TODO
+# TODO (mise à jour filtre DailyLogCreateView)
 
-- [ ] Fix NoReverseMatch in templates/projects/admin/subactivity_form.html (wrong URL argument: empty project.pk)
-- [ ] Ensure AdminSubActivityCreateView provides `form.instance.activity.project.pk` on GET by setting instance.activity (and activity.project) and/or activity FK correctly in get_form_kwargs
-- [ ] Run Django server / quick check by visiting the create URL
+- [x] Comprendre le code existant dans `gestprojet/tracking/views.py`
+- [x] Déplacer le filtrage du queryset `task` de `form_valid()` vers `get_form()` pour que le filtre s’applique lors du rendu
+- [x] Vérifier le rendu UI (liste déroulante) sur `/tracking/log/create/` (à valider côté navigateur)
+- [ ] Vérifier que l’ajout d’un DailyLog enregistre bien et redirige vers `tracking:log_list`
+
 

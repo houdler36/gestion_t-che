@@ -1,11 +1,16 @@
 from django.urls import path
 from . import views
 from .monthly_views import MonthlyReportDashboardView, export_monthly_report_csv
+from .weekly_views import WeeklyReportView, export_weekly_report_csv
 
 app_name = 'reports'
 
 urlpatterns = [
     path('', views.ReportDashboardView.as_view(), name='report_dashboard'),
+
+    path('weekly/', WeeklyReportView.as_view(), name='weekly_report_dashboard'),
+    path('weekly/export/', export_weekly_report_csv, name='export_weekly_report_csv'),
+
     path('monthly/', MonthlyReportDashboardView.as_view(), name='monthly_report_dashboard'),
     path('monthly/export/', export_monthly_report_csv, name='export_monthly_report_csv'),
 
@@ -13,6 +18,7 @@ urlpatterns = [
     path('user/<int:pk>/', views.UserReportView.as_view(), name='user_report'),
     path('export/project/<int:pk>/', views.export_project_report, name='export_project_report'),
 ]
+
 
 
 

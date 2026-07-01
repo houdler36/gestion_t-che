@@ -6,7 +6,9 @@
 {% load static %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/forms.css' %}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 {% endblock %}
+
 
 {% block content %}
 <div class="container">
@@ -14,6 +16,10 @@
         <div class="col-lg-8">
 
             <div class="form-card">
+
+                <div class="form-subtitle" style="display:none"></div>
+
+
                 <div class="form-header">
                     <h4>
                         <i class="bi bi-{% if form.instance.pk %}pencil{% else %}plus-circle{% endif %}"></i>
@@ -23,7 +29,8 @@
                 </div>
 
                 <div class="form-body">
-                    <form method="post" novalidate>
+                    <form id="task-form" method="post" novalidate>
+
                         {% csrf_token %}
 
                         {% if form.non_field_errors %}
@@ -35,48 +42,71 @@
                             </div>
                         {% endif %}
 
-                        <div class="form-group">
-                            <label for="{{ form.name.id_for_label }}">
-                                Nom <span class="required">*</span>
-                            </label>
-                            <div class="input-icon-group">
-                                <span class="input-icon"><i class="bi bi-tag"></i></span>
-                                {{ form.name }}
-                            </div>
-                            {% if form.name.errors %}
-                                <div class="form-errors">
-                                    <i class="bi bi-exclamation-circle"></i>
-                                    {% for error in form.name.errors %}
-                                        {{ error }}
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.project.id_for_label }}">
+                                        Projet
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="input-icon-group">
+                                        <span class="input-icon"><i class="bi bi-folder"></i></span>
+                                        {{ form.project }}
 
-                        <div class="form-group">
-                            <label for="{{ form.description.id_for_label }}">
-                                Description
-                            </label>
-                            <div class="input-icon-group">
-                                <span class="input-icon"><i class="bi bi-file-text"></i></span>
-                                {{ form.description }}
-                            </div>
-                            <div class="form-text">
-                                <i class="bi bi-info-circle"></i>
-                                Description détaillée de la tâche (optionnel)
-                            </div>
-                            {% if form.description.errors %}
-                                <div class="form-errors">
-                                    <i class="bi bi-exclamation-circle"></i>
-                                    {% for error in form.description.errors %}
-                                        {{ error }}
-                                    {% endfor %}
+                                        {% if form.project.value %}
+                                            <div class="form-text mt-1">
+                                                <i class="bi bi-info-circle"></i>
+                                                <div><strong>Nom :</strong> {{ form.project.value.label|default:"" }}</div>
+                                                {% if form.project.value.instance.description %}
+                                                    <div><strong>Description :</strong> {{ form.project.value.instance.description }}</div>
+                                                {% endif %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="form-text">
+                                        <i class="bi bi-info-circle"></i>
+                                        Projet lié (optionnel)
+                                    </div>
+
+                                    {% if form.project.errors %}
+                                        <div class="form-errors">
+                                            <i class="bi bi-exclamation-circle"></i>
+                                            {% for error in form.project.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
                                 </div>
-                            {% endif %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.activity.id_for_label }}">
+                                        Activité
+                                    </label>
+                                    <div class="input-icon-group">
+                                        <span class="input-icon"><i class="bi bi-diagram-3"></i></span>
+                                        {{ form.activity }}
+                                    </div>
+                                    <div class="form-text">
+                                        <i class="bi bi-info-circle"></i>
+                                        Activité liée au projet
+                                    </div>
+                                    {% if form.activity.errors %}
+                                        <div class="form-errors">
+                                            <i class="bi bi-exclamation-circle"></i>
+                                            {% for error in form.activity.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
                         </div>
 
                         <div class="row g-3">
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="{{ form.sub_activity.id_for_label }}">
                                         Sous-activité
@@ -99,33 +129,104 @@
                                     {% endif %}
                                 </div>
                             </div>
-
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="{{ form.project.id_for_label }}">
-                                        Projet
-                                    </label>
-                                    <div class="input-icon-group">
-                                        <span class="input-icon"><i class="bi bi-folder"></i></span>
-                                        {{ form.project }}
-                                    </div>
-                                    <div class="form-text">
-                                        <i class="bi bi-info-circle"></i>
-                                        Projet lié (optionnel)
-                                    </div>
-                                    {% if form.project.errors %}
-                                        <div class="form-errors">
-                                            <i class="bi bi-exclamation-circle"></i>
-                                            {% for error in form.project.errors %}
-                                                {{ error }}
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            </div>
                         </div>
 
+                        <!-- RAFRAÎCHISSEMENT AUTOMATIQUE (100% serveur) -->
+                        <input type="hidden" name="project" id="hidden_project" value="{{ form.project.value|default_if_none:'' }}" />
+                        <input type="hidden" name="activity" id="hidden_activity" value="{{ form.activity.value|default_if_none:'' }}" />
+
+                        <script>
+                        document.addEventListener('DOMContentLoaded', function () {
+                          const form = document.getElementById('task-form');
+
+                          const projectSelect = document.getElementById('id_project');
+                          const activitySelect = document.getElementById('id_activity');
+                          const hiddenProject = document.getElementById('hidden_project');
+                          const hiddenActivity = document.getElementById('hidden_activity');
+
+                          // Sélectionne l'option choisie dans le POST (hidden fields)
+                          function syncHidden() {
+                            if (hiddenProject && projectSelect) hiddenProject.value = projectSelect.value || '';
+                            if (hiddenActivity && activitySelect) hiddenActivity.value = activitySelect.value || '';
+                          }
+
+                          let lastProject = null;
+                          let lastActivity = null;
+
+                          function submitRefresh(actionValue) {
+                            // anti-rafale (évite logout/login en boucle)
+                            if (form.dataset.submitting === '1') return;
+                            form.dataset.submitting = '1';
+
+                            // on met à jour les hidden AVANT POST
+                            syncHidden();
+
+                            // injecte l'action dans le POST
+                            let input = form.querySelector('input[name="action"]');
+                            if (!input) {
+                              input = document.createElement('input');
+                              input.type = 'hidden';
+                              input.name = 'action';
+                              form.appendChild(input);
+                            }
+                            input.value = actionValue;
+
+                            form.submit();
+                          }
+
+
+                          // Important : on autorise à soumettre à nouveau seulement après rechargement.
+                          // (dataset est réinitialisé à chaque nouvelle page)
+
+
+                          if (projectSelect) {
+                            projectSelect.addEventListener('change', function () {
+                              // ne submit que si la valeur change réellement
+                              if (lastProject !== projectSelect.value) {
+                                lastProject = projectSelect.value;
+                                lastActivity = null; // la sous-activité peut devenir invalide
+                                syncHidden();
+                                submitRefresh('refresh_activities');
+                              }
+                            });
+                          }
+
+                          if (activitySelect) {
+                            activitySelect.addEventListener('change', function () {
+                              // ne submit que si la valeur change réellement
+                              if (lastActivity !== activitySelect.value) {
+                                lastActivity = activitySelect.value;
+                                syncHidden();
+                                submitRefresh('refresh_sub_activities');
+                              }
+                            });
+                          }
+
+
+                          // init
+                          syncHidden();
+                        });
+                        </script>
+
+                        <!-- Flatpickr initialization (calendrier fiable sur tous navigateurs) -->
+                        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+                        <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/fr.js"></script>
+                        <script>
+                          document.addEventListener('DOMContentLoaded', function () {
+                            const el = document.getElementById('id_due_date');
+                            if (!el) return;
+
+                            // Règle simple : calendrier + format compatible Django (Y-m-d)
+                            flatpickr(el, {
+                              dateFormat: 'Y-m-d',
+                              locale: 'fr',
+                              allowInput: true,
+                            });
+                          });
+                        </script>
+
                         <div class="row g-3">
+
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="{{ form.assigned_to.id_for_label }}">
@@ -167,6 +268,7 @@
                             </div>
                         </div>
 
+                        <!-- Date limite (Flatpickr - calendrier fiable) -->
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <div class="form-group">
@@ -188,6 +290,7 @@
                                 </div>
                             </div>
 
+
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="{{ form.status.id_for_label }}">
@@ -201,6 +304,55 @@
                                         <div class="form-errors">
                                             <i class="bi bi-exclamation-circle"></i>
                                             {% for error in form.status.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Champs Titre + Description en dernier (Description sous le Titre) -->
+                        <div class="row g-3">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="{{ form.name.id_for_label }}">
+                                        Nom <span class="required">*</span>
+                                    </label>
+                                    <div class="input-icon-group">
+                                        <span class="input-icon"><i class="bi bi-tag"></i></span>
+                                        {{ form.name }}
+                                    </div>
+                                    {% if form.name.errors %}
+                                        <div class="form-errors">
+                                            <i class="bi bi-exclamation-circle"></i>
+                                            {% for error in form.name.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="{{ form.description.id_for_label }}">
+                                        Description
+                                    </label>
+                                    <div class="input-icon-group">
+                                        <span class="input-icon"><i class="bi bi-file-text"></i></span>
+                                        {{ form.description }}
+                                    </div>
+
+                                    <div class="form-text">
+                                        <i class="bi bi-info-circle"></i>
+                                        <span>Description détaillée de la tâche (optionnel)</span>
+                                    </div>
+
+                                    {% if form.description.errors %}
+                                        <div class="form-errors">
+                                            <i class="bi bi-exclamation-circle"></i>
+                                            {% for error in form.description.errors %}
                                                 {{ error }}
                                             {% endfor %}
                                         </div>
@@ -225,6 +377,12 @@
     </div>
 </div>
 {% endblock %}
+
+
+
+
+
+
 
 
 

@@ -8,6 +8,49 @@ from django.views.generic import CreateView, DeleteView, DetailView, ListView, U
 from projects.forms import ActivityForm, ProjectForm, SubActivityForm
 from projects.models import Activity, Project, Project, SubActivity
 from tasks.models import Task
+from django.http import JsonResponse
+
+
+# =====================
+# API AJAX (filtres cascade)
+# =====================
+
+
+def _get_visible_projects(request):
+    """Retourne la liste des projets visibles selon le rôle."""
+    user = request.user
+    if getattr(user, 'role', None) == 'ADMIN':
+        return Project.objects.all()
+    return Project.objects.filter(members=user)
+
+
+def get_activities(request):
+    project_id = request.GET.get('project_id')
+    if not project_id:
+        return JsonResponse([], safe=False)
+
+    activities_qs = Activity.objects.filter(project_id=project_id)
+    if getattr(request.user, 'role', None) == 'PM':
+        activities_qs = activities_qs.filter(project__in=_get_visible_projects(request))
+    return JsonResponse(list(activities_qs.values('id', 'name')), safe=False)
+
+
+def get_sub_activities(request):
+    activity_id = request.GET.get('activity_id')
+    if not activity_id:
+        return JsonResponse([], safe=False)
+
+    subs_qs = SubActivity.objects.filter(activity_id=activity_id)
+    if getattr(request.user, 'role', None) == 'PM':
+        subs_qs = subs_qs.filter(activity__project__in=_get_visible_projects(request))
+
+    return JsonResponse(list(subs_qs.values('id', 'name')), safe=False)
+
+
+
+
+
+
 
 
 

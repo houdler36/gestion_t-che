@@ -3,9 +3,12 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, DeleteView, ListView, UpdateView
 from django.db.models import Q
+from django.shortcuts import redirect
 
-from projects.models import SubActivity
+
 from tasks.models import Task
+from gestprojet.tasks.forms import TaskForm
+
 
 
 
@@ -57,60 +60,126 @@ class MyTaskListView(LoginRequiredMixin, ListView):
 
 class TaskCreateView(LoginRequiredMixin, CreateView):
     model = Task
-    fields = ['sub_activity', 'project', 'name', 'description', 'assigned_to', 'priority', 'due_date', 'status']
+    form_class = TaskForm
     template_name = 'tasks/task_form.html'
     success_url = reverse_lazy('tasks:task_list')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['request'] = self.request
+        return kwargs
+
+    def get_initial(self):
+        initial = super().get_initial()
+
+        # ✅ Valeurs temporaires stockées en session (persistent même après refresh)
+        project_id = self.request.session.get('temp_project_id')
+        activity_id = self.request.session.get('temp_activity_id')
+
+        if project_id:
+            initial['project'] = project_id
+
+        if activity_id:
+            initial['activity'] = activity_id
+
+        # ⚠️ Empêche les incohérences : si on recharge les activités, la sous-activité
+        # peut être incompatible avec la nouvelle activité => on la neutralise.
+        action = self.request.GET.get('action')
+        if action == 'refresh_activities':
+            initial['sub_activity'] = None
+
+        return initial
+
+
+    def post(self, request, *args, **kwargs):
+        action = request.POST.get('action')
+
+        if action == 'refresh_activities':
+            project_id = request.POST.get('project_id') or request.POST.get('project')
+            if project_id:
+                request.session['temp_project_id'] = project_id
+                request.session['temp_activity_id'] = None
+            return redirect(request.path)
+
+        if action == 'refresh_sub_activities':
+            activity_id = request.POST.get('activity_id') or request.POST.get('activity')
+            if activity_id:
+                request.session['temp_activity_id'] = activity_id
+            return redirect(request.path)
+
+        return super().post(request, *args, **kwargs)
+
 
     def form_valid(self, form):
         form.instance.created_by = self.request.user
         messages.success(self.request, 'Tâche créée avec succès !')
         return super().form_valid(form)
 
-    def get_form(self, form_class=None):
-        form = super().get_form(form_class)
 
-        # ====== Classes Bootstrap pour icônes (input-icon-group) ======
-        # On force les classes, car ce formulaire n'utilise pas un forms.py.
-        form.fields['sub_activity'].widget.attrs.update({'class': 'form-select'})
-        form.fields['project'].widget.attrs.update({'class': 'form-select'})
-        form.fields['name'].widget.attrs.update({'class': 'form-control'})
-        form.fields['description'].widget.attrs.update({'class': 'form-control'})
-        form.fields['assigned_to'].widget.attrs.update({'class': 'form-select'})
-        form.fields['priority'].widget.attrs.update({'class': 'form-select'})
-        form.fields['due_date'].widget.attrs.update({'class': 'form-control', 'type': 'date'})
-        form.fields['status'].widget.attrs.update({'class': 'form-select'})
-
-        if getattr(self.request.user, 'role', None) == 'PM':
-            user_projects = self.request.user.projects.all()
-            form.fields['sub_activity'].queryset = SubActivity.objects.filter(
-                activity__project__in=user_projects
-            )
-            # Sécurise l'option "vide" pour permettre les tâches hors projet.
-            try:
-                form.fields['sub_activity'].empty_label = "---------"
-            except Exception:
-                pass
-
-        # Sécurise aussi l'option vide pour "project".
-        try:
-            form.fields['project'].empty_label = "---------"
-        except Exception:
-            pass
-
-        return form
 
 
 
 
 class TaskUpdateView(LoginRequiredMixin, UpdateView):
     model = Task
-    fields = ['name', 'description', 'assigned_to', 'priority', 'due_date', 'status']
+    form_class = TaskForm
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['request'] = self.request
+        return kwargs
+
     template_name = 'tasks/task_form.html'
     success_url = reverse_lazy('tasks:task_list')
+
+    def get_initial(self):
+        initial = super().get_initial()
+
+        project_id = self.request.session.get('temp_project_id')
+        activity_id = self.request.session.get('temp_activity_id')
+
+        if project_id:
+            initial['project'] = project_id
+        if activity_id:
+            initial['activity'] = activity_id
+
+        # ⚠️ Empêche les incohérences : si on recharge les activités, la sous-activité
+        # peut être incompatible avec la nouvelle activité => on la neutralise.
+        action = self.request.GET.get('action')
+        if action == 'refresh_activities':
+            initial['sub_activity'] = None
+
+        return initial
+
+
+    def post(self, request, *args, **kwargs):
+        action = request.POST.get('action')
+
+        if action == 'refresh_activities':
+            project_id = request.POST.get('project_id') or request.POST.get('project')
+            if project_id:
+                request.session['temp_project_id'] = project_id
+                request.session['temp_activity_id'] = None
+            return redirect(request.path)
+
+        if action == 'refresh_sub_activities':
+            activity_id = request.POST.get('activity_id') or request.POST.get('activity')
+            if activity_id:
+                request.session['temp_activity_id'] = activity_id
+            return redirect(request.path)
+
+        if action == 'save':
+            request.session.pop('temp_project_id', None)
+            request.session.pop('temp_activity_id', None)
+            return super().post(request, *args, **kwargs)
+
+        return super().post(request, *args, **kwargs)
+
 
     def form_valid(self, form):
         messages.success(self.request, 'Tâche mise à jour avec succès !')
         return super().form_valid(form)
+
 
 
 class TaskDeleteView(LoginRequiredMixin, DeleteView):

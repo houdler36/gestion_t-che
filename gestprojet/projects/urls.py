@@ -12,6 +12,9 @@ urlpatterns = [
     path('<int:pk>/update/', views.ProjectUpdateView.as_view(), name='project_update'),
     path('<int:pk>/delete/', views.ProjectDeleteView.as_view(), name='project_delete'),
 
+    # API AJAX (filtrage cascade)
+    path('api/activities/', views.get_activities, name='get_activities'),
+    path('api/subactivities/', views.get_sub_activities, name='get_sub_activities'),
 
     # ===== Vues admin custom =====
     path('admin/', views.AdminProjectListView.as_view(), name='admin_project_list'),
@@ -28,4 +31,5 @@ urlpatterns = [
     path('admin/subactivity/<int:pk>/update/', views.AdminSubActivityUpdateView.as_view(), name='admin_subactivity_update'),
     path('admin/subactivity/<int:pk>/delete/', views.AdminSubActivityDeleteView.as_view(), name='admin_subactivity_delete'),
 ]
+
 

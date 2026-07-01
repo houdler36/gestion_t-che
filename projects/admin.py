@@ -46,8 +46,9 @@ class ActivityAdmin(admin.ModelAdmin):
 
 @admin.register(SubActivity)
 class SubActivityAdmin(admin.ModelAdmin):
-    list_display = ('name', 'activity', 'assigned_to', 'status', 'created_at')
-    list_filter = ('status', 'activity__project', 'assigned_to')
+    list_display = ('name', 'activity', 'status', 'created_at')
+    list_filter = ('status', 'activity__project')
     search_fields = ('name', 'activity__name')
     readonly_fields = ('created_at', 'updated_at')
+
 
