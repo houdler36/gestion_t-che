@@ -16,6 +16,7 @@ class Task(models.Model):
         ('DONE', 'Terminée'),
         ('BLOCKED', 'Bloquée'),
     )
+    
 
     sub_activity = models.ForeignKey(SubActivity, on_delete=models.CASCADE, null=True, blank=True, related_name='tasks')
     project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True, blank=True, related_name='tasks')
