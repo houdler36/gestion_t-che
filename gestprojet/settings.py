@@ -25,9 +25,12 @@ SECRET_KEY = 'django-insecure-o%+=%s*7f9q#dbpt5jj-&^-rw37tchf^6vb7rw96spka30d51c
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1','localhost']
-
-
+ALLOWED_HOSTS = [
+    '192.168.88.253',
+    '127.0.0.1',
+    'localhost',
+    'testserver',  # ← Ajouté pour les tests Django
+]
 
 # Application definition
 
@@ -86,22 +89,37 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 WSGI_APPLICATION = 'gestprojet.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+# ============================================================
+# DATABASE - Configuration séparée pour local et GitHub Actions
+# ============================================================
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'gestprojet_db',
-        'USER': 'postgres',
-        'PASSWORD': 'Houlder38',
-        'HOST': 'localhost',
-        'PORT': '5432',
-        'OPTIONS': {
-            'options': '-c client_encoding=utf8',
-        },
+if 'GITHUB_ACTIONS' in os.environ:
+    # Configuration pour GitHub Actions (base de test)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'github_actions',
+            'USER': 'postgres',
+            'PASSWORD': 'postgres',
+            'HOST': 'localhost',
+            'PORT': '5432',
+        }
     }
-}
+else:
+    # Configuration pour le développement local
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'gestprojet_db',
+            'USER': 'postgres',
+            'PASSWORD': 'Houlder38',
+            'HOST': 'localhost',
+            'PORT': '5432',
+            'OPTIONS': {
+                'options': '-c client_encoding=utf8',
+            },
+        }
+    }
 
 
 # Password validation
