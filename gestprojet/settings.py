@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-o%+=%s*7f9q#dbpt5jj-&^-rw37tchf^6vb7rw96spka30d51c
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    '192.168.88.253',
+    '192.168.88.18',
     '127.0.0.1',
     'localhost',
     'testserver',  # ← Ajouté pour les tests Django

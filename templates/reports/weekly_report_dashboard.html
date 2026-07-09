@@ -3,226 +3,378 @@
 {% block title %}📅 Rapport hebdomadaire{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <h2>📋 Rapport hebdomadaire</h2>
-  <div class="d-flex gap-2">
-    <a class="btn btn-outline-primary" href="{% url 'reports:export_weekly_report_csv' %}?year={{ year }}&week={{ week }}{% if selected_project %}&project={{ selected_project.id }}{% endif %}{% if selected_user %}&user={{ selected_user.id }}{% endif %}">
-      <i class="bi bi-download"></i> Export CSV
-    </a>
-  </div>
-</div>
 
-<div class="card mb-4">
-  <div class="card-body">
-    <form method="get" class="row g-3 align-items-end">
-      <div class="col-md-4">
-        <label class="form-label" for="week">Semaine</label>
-        <select class="form-select" id="week" name="week">
-          {% for wy, ww in allowed_weeks %}
-            <option value="{{ wy }}-{{ ww|stringformat:"02d" }}" {% if wy == year and ww == week %}selected{% endif %}>
-              S{{ ww|stringformat:"02d" }} ({{ wy }})
-            </option>
-          {% endfor %}
-        </select>
-        <div class="form-text">Semaines autorisées pour le mois sélectionné.</div>
-      </div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
+<style>
+body {
+    background: #f8fafc;
+}
 
+/* HEADER */
+.report-header {
+    background: linear-gradient(135deg, #2563eb, #4f46e5);
+    color: white;
+    padding: 25px;
+    border-radius: 24px;
+    box-shadow: 0 20px 45px rgba(37, 99, 235, 0.25);
+}
 
-      <div class="col-md-3">
-        <label class="form-label" for="project">Projet</label>
-        <select class="form-select" id="project" name="project">
-          <option value="">Tous les projets</option>
-          {% for project in projects %}
-            <option value="{{ project.id }}" {% if selected_project and project.id == selected_project.id %}selected{% endif %}>
-              {{ project.name }}
-            </option>
-          {% endfor %}
-        </select>
-      </div>
+/* CARDS */
+.card {
+    border: none !important;
+    border-radius: 22px !important;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+    transition: 0.3s;
+}
 
-      <div class="col-md-3">
-        <label class="form-label" for="user">Personne</label>
-        <select class="form-select" id="user" name="user">
-          <option value="">Toutes les personnes</option>
-          {% for u in users %}
-            <option value="{{ u.id }}" {% if selected_user and u.id == selected_user.id %}selected{% endif %}>
-              {{ u.get_full_name|default:u.username }}
-            </option>
-          {% endfor %}
-        </select>
-      </div>
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 45px rgba(15, 23, 42, 0.15);
+}
 
-      <div class="col-md-2 d-grid">
-        <button type="submit" class="btn btn-primary">Filtrer</button>
-      </div>
+.card-header {
+    background: white !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    padding: 18px 22px !important;
+    font-weight: 800;
+}
 
-      {# Mois contexte (optionnel) #}
-      <input type="hidden" name="month" value="{{ month_ctx_ym }}" />
+/* FORMULAIRE */
+.form-label {
+    font-weight: 700;
+    color: #334155;
+}
 
-    </form>
-  </div>
-</div>
+.form-select {
+    border-radius: 12px;
+    padding: 11px;
+}
 
-<div class="row mb-4">
-  <div class="col-md-3 mb-3">
-    <div class="card bg-primary text-white">
-      <div class="card-body">
-        <h5 class="card-title">Jours travaillés</h5>
-        <h2 class="display-6">{{ total_present_days }}</h2>
-      </div>
-    </div>
-  </div>
-  <div class="col-md-3 mb-3">
-    <div class="card bg-success text-white">
-      <div class="card-body">
-        <h5 class="card-title">Tâches terminées</h5>
-        <h2 class="display-6">{{ completed_tasks }}</h2>
-      </div>
-    </div>
-  </div>
-  <div class="col-md-3 mb-3">
-    <div class="card bg-warning text-dark">
-      <div class="card-body">
-        <h5 class="card-title">Tâches en cours / à faire</h5>
-        <h2 class="display-6">{{ pending_tasks }}</h2>
-      </div>
-    </div>
-  </div>
-  <div class="col-md-3 mb-3">
-    <div class="card bg-info text-white">
-      <div class="card-body">
-        <h5 class="card-title">Taux de complétion</h5>
-        <h2 class="display-6">{{ completion_rate|floatformat:0 }}%</h2>
-      </div>
-    </div>
-  </div>
-</div>
+.btn {
+    border-radius: 12px;
+    font-weight: 700;
+}
 
-<div class="row mb-4">
-  <div class="col-md-12">
-    <div class="alert alert-secondary d-flex justify-content-between align-items-center">
-      <div>
-        <b>{{ week_label }}</b>
-      </div>
-    </div>
-  </div>
-</div>
+/* KPI */
+.kpi-card {
+    color: white;
+    border-radius: 22px;
+    padding: 22px;
+    height: 100%;
+}
 
-<div class="row">
-  <div class="col-md-12 mb-4">
-    <div class="card">
-      <div class="card-header">👤 Rapport par personne</div>
-      <div class="card-body">
-        <div class="table-responsive">
-          <table class="table table-bordered table-hover align-middle">
-            <thead class="table-light">
-              <tr>
-                <th>Personne</th>
-                <th>Jours de présence</th>
+.kpi-icon {
+    font-size: 30px;
+    opacity: 0.8;
+}
 
-                <th>Entrées (logs)</th>
-                <th>Tâches totales</th>
-                <th>Terminées</th>
-                <th>En cours / À faire</th>
-                <th>En retard</th>
-                <th>Projets (heures)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for person in report_by_person %}
-                <tr>
-                  <td>
-                    <strong>{{ person.user.get_full_name|default:person.user.username }}</strong>
-                    <br/>
-                    <small class="text-muted">{{ person.user.email }}</small>
-                  </td>
-                  <td>{{ person.total_present_days }}</td>
+.kpi-title {
+    font-weight: 700;
+    opacity: 0.9;
+}
 
-                  <td>{{ person.total_entries }}</td>
-                  <td>{{ person.total_tasks }}</td>
-                  <td><span class="badge bg-success">{{ person.completed_tasks }}</span></td>
-                  <td><span class="badge bg-warning text-dark">{{ person.pending_tasks }}</span></td>
-                  <td>
-                    {% if person.overdue_tasks > 0 %}
-                      <span class="badge bg-danger">{{ person.overdue_tasks }}</span>
-                    {% else %}
-                      <span class="badge bg-secondary">0</span>
-                    {% endif %}
-                  </td>
-                  <td>
-                    {% if person.projects %}
-                      {% for p in person.projects %}
-                        <div>
-                          <span class="badge bg-info">{{ p.project__name }}</span>
-                          <small class="text-muted">{{ p.days }} jours</small>
-                        </div>
-                      {% endfor %}
-                    {% else %}
-                      <span class="text-muted">—</span>
-                    {% endif %}
-                  </td>
-                </tr>
-              {% empty %}
-                <tr>
-                  <td colspan="8" class="text-center py-4 text-muted">
-                    Aucune donnée pour cette période.
-                  </td>
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+.kpi-value {
+    font-size: 2.4rem;
+    font-weight: 900;
+}
+
+/* TABLE */
+.table {
+    margin-bottom: 0;
+}
+
+.table thead th {
+    background: #f8fafc;
+    color: #475569;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+}
+
+.table tbody tr {
+    transition: 0.2s;
+}
+
+.table tbody tr:hover {
+    background: #eff6ff;
+}
+
+/* BADGE */
+.badge {
+    border-radius: 999px;
+    padding: 7px 12px;
+}
+
+/* ALERT */
+.week-box {
+    background: white;
+    border-radius: 18px;
+    padding: 18px;
+    box-shadow: 0 8px 25px rgba(15, 23, 42, 0.06);
+}
+
+/* ANIMATION */
+.fade {
+    animation: show 0.5s ease forwards;
+}
+
+@keyframes show {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
+
+<div class="report-header mb-4 fade">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <h2 class="fw-bold mb-2">
+                <i class="bi bi-calendar-week me-2"></i> Rapport hebdomadaire
+            </h2>
+            <p class="mb-0 opacity-75">
+                Suivi des activités, tâches et performances
+            </p>
         </div>
-      </div>
+        <a class="btn btn-light" href="{% url 'reports:export_weekly_report_csv' %}?year={{ year }}&week={{ week }}{% if selected_project %}&project={{ selected_project.id }}{% endif %}{% if selected_user %}&user={{ selected_user.id }}{% endif %}">
+            <i class="bi bi-download"></i> Exporter CSV
+        </a>
     </div>
-  </div>
 </div>
 
-<div class="row">
-  <div class="col-md-12 mb-4">
-    <div class="card">
-      <div class="card-header">📋 Détail des logs (personne / projet / date / activité / sous-activité / tâche / statut)</div>
-      <div class="card-body">
-        <div class="table-responsive">
-          <table class="table table-striped table-bordered align-middle">
-            <thead class="table-light">
-              <tr>
-                <th>Personne</th>
-                <th>Date</th>
-                <th>Activité</th>
-                <th>Sous-activité</th>
-                <th>Tâche logs</th>
+<div class="card mb-4 fade">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label">Semaine</label>
+                <select class="form-select" name="week">
+                    {% for wy, ww in allowed_weeks %}
+                        <option value="{{ wy }}-{{ ww|stringformat:'02d' }}" {% if wy == year and ww == week %}selected{% endif %}>
+                            S{{ ww|stringformat:"02d" }} ({{ wy }})
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
 
-                <th>Statut</th>
-                <th>Présence</th>
+            <div class="col-md-3">
+                <label class="form-label">Projet</label>
+                <select class="form-select" name="project">
+                    <option value="">Tous les projets</option>
+                    {% for project in projects %}
+                        <option value="{{ project.id }}" {% if selected_project and project.id == selected_project.id %}selected{% endif %}>
+                            {{ project.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
 
-              </tr>
+            <div class="col-md-3">
+                <label class="form-label">Personne</label>
+                <select class="form-select" name="user">
+                    <option value="">Toutes les personnes</option>
+                    {% for u in users %}
+                        <option value="{{ u.id }}" {% if selected_user and u.id == selected_user.id %}selected{% endif %}>
+                            {{ u.get_full_name|default:u.username }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
 
-            </thead>
-            <tbody>
-              {% for d in weekly_details %}
-                <tr>
-                  <td>{{ d.user.get_full_name|default:d.user.username }}</td>
-    
-                  <td>{{ d.date }}</td>
-                  <td>{{ d.activity__name }}</td>
-                  <td>{{ d.sub_activity__name }}</td>
-                  <td>{{ d.task__name }}</td>
-                  <td><span class="badge bg-secondary">{{ d.task__status_display }}</span></td>
-                  <td><span class="badge bg-success">Présent ✅</span></td>
-                </tr>
-              {% empty %}
-                <tr>
-                  <td colspan="8" class="text-center py-4 text-muted">Aucun log pour cette période.</td>
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+            <div class="col-md-2 d-grid">
+                <button class="btn btn-primary">
+                    <i class="bi bi-funnel"></i> Filtrer
+                </button>
+            </div>
+            <input type="hidden" name="month" value="{{ month_ctx_ym }}">
+        </form>
+    </div>
+</div>
+
+<div class="row g-3 mb-4 fade">
+    <div class="col-md-3">
+        <div class="kpi-card" style="background: linear-gradient(135deg, #2563eb, #60a5fa);">
+            <div class="kpi-icon"><i class="bi bi-calendar-check"></i></div>
+            <div class="kpi-title">Jours travaillés</div>
+            <div class="kpi-value">{{ total_present_days }}</div>
         </div>
-      </div>
     </div>
-  </div>
+
+    <div class="col-md-3">
+        <div class="kpi-card" style="background: linear-gradient(135deg, #16a34a, #4ade80);">
+            <div class="kpi-icon"><i class="bi bi-check-circle"></i></div>
+            <div class="kpi-title">Tâches terminées</div>
+            <div class="kpi-value">{{ completed_tasks }}</div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="kpi-card" style="background: linear-gradient(135deg, #f59e0b, #fbbf24);">
+            <div class="kpi-icon"><i class="bi bi-hourglass-split"></i></div>
+            <div class="kpi-title">En cours / À faire</div>
+            <div class="kpi-value">{{ pending_tasks }}</div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="kpi-card" style="background: linear-gradient(135deg, #0891b2, #22d3ee);">
+            <div class="kpi-icon"><i class="bi bi-graph-up-arrow"></i></div>
+            <div class="kpi-title">Taux complétion</div>
+            <div class="kpi-value">{{ completion_rate|floatformat:0 }}%</div>
+        </div>
+    </div>
 </div>
+
+<div class="week-box mb-4 fade">
+    <i class="bi bi-calendar3 me-2"></i>
+    <b>{{ week_label }}</b>
+</div>
+
+<div class="card mb-4 fade">
+    <div class="card-header">
+        <i class="bi bi-people me-2"></i> Rapport par personne
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Personne</th>
+                        <th>Présence</th>
+                        <th>Logs</th>
+                        <th>Total tâches</th>
+                        <th>Terminées</th>
+                        <th>En cours</th>
+                        <th>Retard</th>
+                        <th>Projets</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for person in report_by_person %}
+                        <tr>
+                            <td>
+                                <strong>{{ person.user.get_full_name|default:person.user.username }}</strong>
+                                <br>
+                                <small class="text-muted">{{ person.user.email }}</small>
+                            </td>
+                            <td>
+                                <span class="badge bg-primary">{{ person.total_present_days }} jours</span>
+                            </td>
+                            <td>{{ person.total_entries }}</td>
+                            <td>{{ person.total_tasks }}</td>
+                            <td>
+                                <span class="badge bg-success">{{ person.completed_tasks }}</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-warning text-dark">{{ person.pending_tasks }}</span>
+                            </td>
+                            <td>
+                                {% if person.overdue_tasks > 0 %}
+                                    <span class="badge bg-danger">{{ person.overdue_tasks }}</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">0</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if person.projects %}
+                                    {% for p in person.projects %}
+                                        <div class="mb-1">
+                                            <span class="badge bg-info">{{ p.project__name }}</span>
+                                            <small class="text-muted">{{ p.days }} jours</small>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-4">
+                                Aucune donnée pour cette période.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="card fade mb-4">
+    <div class="card-header">
+        <i class="bi bi-list-task me-2"></i> Détail des logs (personne / date / activité / tâche / statut)
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Personne</th>
+                        <th>Date</th>
+                        <th>Activité</th>
+                        <th>Sous-activité</th>
+                        <th>Tâche</th>
+                        <th>Statut</th>
+                        <th>Présence</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for d in weekly_details %}
+                        <tr>
+                            <td>
+                                <strong>{{ d.user.get_full_name|default:d.user.username }}</strong>
+                            </td>
+                            <td>
+                                <i class="bi bi-calendar3 me-1"></i> {{ d.date }}
+                            </td>
+                            <td>{{ d.activity__name }}</td>
+                            <td>{{ d.sub_activity__name }}</td>
+                            <td>{{ d.task__name }}</td>
+                            <td>
+                                <span class="badge bg-secondary">
+                                    <i class="bi bi-info-circle me-1"></i> {{ d.task__status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge bg-success">
+                                    <i class="bi bi-check-circle me-1"></i> Présent
+                                </span>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">
+                                <i class="bi bi-folder-x fs-3 d-block mb-2"></i> Aucun log pour cette période.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="card fade">
+    <div class="card-body text-center">
+        <h5 class="fw-bold">
+            <i class="bi bi-bar-chart-line me-2"></i> Résumé du suivi
+        </h5>
+        <p class="text-muted mb-0">
+            Ce rapport permet de suivre la présence, les activités réalisées et l'avancement des tâches pendant la période sélectionnée.
+        </p>
+    </div>
+</div>
+
+<script>
+// Animation progressive des cartes
+document.querySelectorAll(".fade").forEach((item, index) => {
+    item.style.animationDelay = (index * 80) + "ms";
+});
+</script>
 
 {% endblock %}
-
